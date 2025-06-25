@@ -8,7 +8,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    *
    * In this section, we fetch any resources or run any desired preliminary commands.
    */
-  console.info('Starting Hello Moon!')
+  console.info('Starting Mostro daemon!')
 
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
@@ -23,7 +23,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   return sdk.Daemons.of(effects, started).addDaemon('primary', {
     subcontainer: await sdk.SubContainer.of(
       effects,
-      { imageId: 'hello-moon' },
+      { imageId: 'mostro' },
       sdk.Mounts.of()
         .mountVolume({
           volumeId: 'main',
@@ -32,15 +32,15 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           readonly: false,
         })
         .mountDependency<typeof helloWorldManifest>({
-          dependencyId: 'hello-world',
+          dependencyId: 'mostro',
           volumeId: 'main',
           subpath: null,
-          mountpoint: '/hello-world',
+          mountpoint: '/mostro',
           readonly: true,
         }),
-      'hello-moon-sub',
+      'mostro-sub',
     ),
-    exec: { command: ['hello-world'] },
+    exec: { command: ['mostrod'] },
     ready: {
       display: 'Web Interface',
       fn: () =>

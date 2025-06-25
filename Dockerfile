@@ -1,1 +1,2 @@
-FROM start9/hello-world
+FROM arkanoider/mostro:latest
+
