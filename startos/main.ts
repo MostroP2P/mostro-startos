@@ -1,5 +1,5 @@
 import { sdk } from './sdk'
-import { manifest as helloWorldManifest } from 'hello-world-startos/startos/manifest'
+import { manifest as mostroManifest } from 'mostro-startos/startos/manifest'
 import { uiPort } from './utils'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
@@ -31,7 +31,7 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
           mountpoint: '.data',
           readonly: false,
         })
-        .mountDependency<typeof helloWorldManifest>({
+        .mountDependency<typeof mostroManifest>({
           dependencyId: 'mostro',
           volumeId: 'main',
           subpath: null,
