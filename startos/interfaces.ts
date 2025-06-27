@@ -1,23 +1,27 @@
 import { sdk } from './sdk'
-import { uiPort } from './utils'
+
 
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
-  const uiMulti = sdk.MultiHost.of(effects, 'multi')
-  const uiMultiOrigin = await uiMulti.bindPort(uiPort, { protocol: 'http' })
-
-  const ui = sdk.createInterface(effects, {
-    name: 'Web UI',
-    id: 'webui',
-    description: 'The web interface of Hello Moon',
-    type: 'ui',
-    schemeOverride: null,
+  // RPC
+  const rpcMulti = sdk.MultiHost.of(effects, 'rpc')
+  const rpcMultiOrigin = await rpcMulti.bindPort(50051, {
+    protocol: 'http',
+    preferredExternalPort: 50051,
+  })
+  const rpc = sdk.createInterface(effects, {
+    name: 'RPC Interface',
+    id: 'rpc',
+    description: 'Listens for JSON-RPC commands',
+    type: 'api',
     masked: false,
+    schemeOverride: null,
     username: null,
     path: '',
     query: {},
   })
+  const rpcReceipt = await rpcMultiOrigin.export([rpc])
 
-  const multiReceipt = await uiMultiOrigin.export([ui])
+  const receipts = [rpcReceipt]
 
-  return [multiReceipt]
+  return receipts
 })

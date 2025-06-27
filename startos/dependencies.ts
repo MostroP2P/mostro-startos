@@ -1,6 +1,6 @@
 import { sdk } from './sdk'
 import { T } from '@start9labs/start-sdk'
-import { storeJson } from './fileModels/store.json'
+import { storeJson } from './file-models/store.json'
 
 
 export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
@@ -18,7 +18,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       id: 'lnd',
       kind: 'running',
       versionRange: '>=0.18.3',
-      healthChecks: [],
+      healthChecks: ['synced'],
     }
   }
 
@@ -27,7 +27,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
       id: 'c-lightning',
       kind: 'running',
       versionRange: '>=24.08.1:1', // @TODO confirm
-      healthChecks: [],
+      healthChecks: ['synced'],
     }
     }
   
@@ -37,7 +37,7 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }) => {
     bitcoind: {
       kind: 'running',
       versionRange: '>=28.0.0:1',
-      healthChecks: [],
+      healthChecks: ['synced'],
     },
   }
 })

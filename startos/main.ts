@@ -1,6 +1,7 @@
 import { sdk } from './sdk'
-import { manifest as mostroManifest } from 'mostro-startos/startos/manifest'
-import { uiPort } from './utils'
+import { manifest as mostroManifest } from './manifest'
+import { storeJson } from './file-models/store.json'
+import { lndMountpoint, clnMountpoint } from './utils'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   /**
@@ -13,6 +14,52 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
 
+  // Read lightning configuration from store
+  const lightning = await storeJson.read((s) => s.lightning).const(effects)
+
+  // ========================
+  // Main mount setup
+  // ========================
+
+  let mainMount = sdk.Mounts.of()
+    .mountVolume({
+      volumeId: 'main',
+      subpath: null,
+      mountpoint: '/mostro',
+      readonly: false,
+    })
+
+  // ========================
+  // Dependency setup & checks
+  // ========================
+
+  switch (lightning) {
+    case 'lnd':
+      // @TODO mainMounts.mountDependency<typeof LndManifest>
+      mainMount = mainMount.mountDependency({
+        dependencyId: 'lnd',
+        volumeId: 'main', //@TODO verify
+        subpath: null,
+        mountpoint: lndMountpoint,
+        readonly: true,
+      })
+      break
+
+    case 'cln':
+      // @TODO mainMounts.mountDependency<typeof ClnManifest>
+      mainMount = mainMount.mountDependency({
+        dependencyId: 'c-lightning',
+        volumeId: 'main', //@TODO verify
+        subpath: null,
+        mountpoint: clnMountpoint,
+        readonly: true,
+      })
+      break
+
+    default:
+      break
+  }
+
   /**
    * ======================== Daemons ========================
    *
@@ -24,31 +71,11 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
     subcontainer: await sdk.SubContainer.of(
       effects,
       { imageId: 'mostro' },
-      sdk.Mounts.of()
-        .mountVolume({
-          volumeId: 'main',
-          subpath: null,
-          mountpoint: '.data',
-          readonly: false,
-        })
-        .mountDependency<typeof mostroManifest>({
-          dependencyId: 'mostro',
-          volumeId: 'main',
-          subpath: null,
-          mountpoint: '/mostro',
-          readonly: true,
-        }),
+      mainMount,
       'mostro-sub',
     ),
     exec: { command: ['mostrod'] },
-    ready: {
-      display: 'Web Interface',
-      fn: () =>
-        sdk.healthCheck.checkPortListening(effects, uiPort, {
-          successMessage: 'The web interface is ready',
-          errorMessage: 'The web interface is unreachable',
-        }),
-    },
+    ready: { display: null, fn: () => ({ result: 'success', message: null }) },
     requires: [],
   })
 })
