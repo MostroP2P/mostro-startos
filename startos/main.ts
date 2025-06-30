@@ -2,6 +2,7 @@ import { sdk } from './sdk'
 import { manifest as mostroManifest } from './manifest'
 import { storeJson } from './file-models/store.json'
 import { lndMountpoint, clnMountpoint } from './utils'
+import { daemon_settings } from './file-models/settings'
 
 export const main = sdk.setupMain(async ({ effects, started }) => {
   /**
@@ -15,7 +16,10 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   depResult.throwIfNotSatisfied()
 
   // Read lightning configuration from store
-  const lightning = await storeJson.read((s) => s.lightning).const(effects)
+  const storeData = await storeJson.read().const(effects)
+  const lightning = storeData.lightning
+  
+  console.info(`Lightning backend configured: ${lightning}`)
 
   // ========================
   // Main mount setup
