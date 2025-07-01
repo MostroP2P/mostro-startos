@@ -1,10 +1,8 @@
 {
-  "include": [
-    "startos/**/*.ts"
-  ],
-  "exclude": [
-    "node_modules"
-  ],
+"include": [
+  "startos/**/*.ts",
+  "node_modules/**/startos"
+],
   "compilerOptions": {
     "target": "es2022",
     "module": "None",

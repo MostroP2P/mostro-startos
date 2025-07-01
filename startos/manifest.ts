@@ -15,21 +15,24 @@ export const manifest = setupManifest({
   },
   volumes: ['main'],
   images: {
-    'mostro': {
+    mostro: {
       source: {
-        dockerBuild: {
-          dockerfile: 'Dockerfile',
-          workdir: '.',
-        },
+        dockerTag: 'arkanoider/mostro:latest',
       },
+      arch: ['x86_64'],
+      emulateMissingAs: 'x86_64',
     },
   },
-  hardwareRequirements: {},
+  hardwareRequirements: {
+    arch: ['x86_64'],
+    ram: 512,
+    device: undefined,
+  },
   alerts: {
-    install:null,
+    install: null,
     update: null,
-    uninstall:null,
-    restore:null,
+    uninstall: null,
+    restore: null,
     start: null,
     stop: null,
   },
@@ -37,12 +40,12 @@ export const manifest = setupManifest({
     bitcoind: {
       description: 'Bitcoin node',
       optional: false,
-      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.2/bitcoind.s9pk',
+      s9pk: 'https://github.com/Start9Labs/bitcoind-startos/releases/download/v28.1.0.3-alpha.5/bitcoind.s9pk',
     },
     lnd: {
       description: 'Lightning node',
       optional: false,
-      s9pk: 'https://github.com/Start9Labs/lnd-startos/releases/download/v0.19.1-beta.1-alpha.0/lnd.s9pk',
+      s9pk: 'https://github.com/Start9Labs/lnd-startos/releases/download/v0.19.1-beta.1-alpha.2/lnd.s9pk'
     },
   },
 })

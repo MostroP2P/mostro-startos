@@ -17,8 +17,8 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
 
   // Read lightning configuration from store
   const storeData = await storeJson.read().const(effects)
-  const lightning = storeData.lightning
-  
+  const lightning = storeData?.lightning ?? 'lnd'
+
   console.info(`Lightning backend configured: ${lightning}`)
 
   // ========================
