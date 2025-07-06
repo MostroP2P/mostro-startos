@@ -15,12 +15,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
 
-  // Read lightning configuration from store
-  const storeData = await storeJson.read().const(effects)
-  const lightning = storeData?.lightning ?? 'lnd'
-
-  console.info(`Lightning backend configured: ${lightning}`)
-
   // ========================
   // Main mount setup
   // ========================
@@ -37,8 +31,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
   // Dependency setup & checks
   // ========================
 
-  switch (lightning) {
-    case 'lnd':
       // @TODO mainMounts.mountDependency<typeof LndManifest>
       mainMount = mainMount.mountDependency({
         dependencyId: 'lnd',
@@ -47,22 +39,6 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         mountpoint: lndMountpoint,
         readonly: true,
       })
-      break
-
-    case 'cln':
-      // @TODO mainMounts.mountDependency<typeof ClnManifest>
-      mainMount = mainMount.mountDependency({
-        dependencyId: 'c-lightning',
-        volumeId: 'main', //@TODO verify
-        subpath: null,
-        mountpoint: clnMountpoint,
-        readonly: true,
-      })
-      break
-
-    default:
-      break
-  }
 
   /**
    * ======================== Daemons ========================
