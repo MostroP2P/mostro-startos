@@ -17,10 +17,7 @@ export const manifest = setupManifest({
   images: {
     'mostro': {
       source: {
-        dockerBuild: {
-          dockerfile: 'Dockerfile',
-          workdir: '.',
-        },
+        dockerTag: 'arkanoider/mostro:latest',
       },
       arch: ['x86_64'],
       emulateMissingAs: 'x86_64',

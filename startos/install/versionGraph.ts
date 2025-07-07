@@ -2,18 +2,31 @@ import { VersionGraph } from '@start9labs/start-sdk'
 import { current, other } from './versions'
 import { access } from 'fs/promises'
 import { storeJson } from '../file-models/store.json'
+import { daemon_settings } from '../file-models/settings'
 
 export const versionGraph = VersionGraph.of({
   current,
   other,
   preInstall: async (effects) => {
+    // Check for existing store.json (sensitive data)
     try {
       await access('/media/startos/volumes/main/store.json')
       console.log('Found existing store.json')
     } catch {
-      console.log("Couldn't find existing store.json. Using defaults")
+      console.log("Couldn't find existing store.json. Creating with defaults")
       await storeJson.write(effects, {
+        nsec_privkey: 'nsec1...',
         db_password: '',
+      })
+    }
+
+    // Check for existing config.toml (non-sensitive data)
+    try {
+      await access('/media/startos/volumes/main/config.toml')
+      console.log('Found existing config.toml')
+    } catch {
+      console.log("Couldn't find existing config.toml. Creating with defaults")
+      await daemon_settings.write(effects, {
         lightning: {
           lnd_cert_file: '/home/user/.polar/networks/1/volumes/lnd/alice/tls.cert',
           lnd_macaroon_file: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
@@ -25,7 +38,6 @@ export const versionGraph = VersionGraph.of({
           payment_retries_interval: 60,
         },
         nostr: {
-          nsec_privkey: 'nsec1...',
           relays: ['ws://localhost:7000'],
         },
         mostro: {
