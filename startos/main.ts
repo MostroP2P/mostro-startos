@@ -40,6 +40,17 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
         readonly: true,
       })
 
+  // ========================
+  // SubContainer setup
+  // ========================
+
+  const mostroSub = await sdk.SubContainer.of(
+    effects,
+    { imageId: 'mostro' },
+    mainMount,
+    'mostro-sub',
+  )
+
   /**
    * ======================== Daemons ========================
    *
@@ -48,14 +59,53 @@ export const main = sdk.setupMain(async ({ effects, started }) => {
    * Each daemon defines its own health check, which can optionally be exposed to the user.
    */
   return sdk.Daemons.of(effects, started).addDaemon('primary', {
-    subcontainer: await sdk.SubContainer.of(
-      effects,
-      { imageId: 'mostro' },
-      mainMount,
-      'mostro-sub',
-    ),
+    subcontainer: mostroSub,
     exec: { command: ['mostrod'] },
     ready: { display: null, fn: () => ({ result: 'success', message: null }) },
     requires: [],
+  })
+  .addHealthCheck('rpc version check', {
+    ready: {
+      display: "RPC Version Check",
+      fn: async (): Promise<{ result: 'success' | 'failure'; message: string | null }> => {
+        try {
+          // Execute grpcurl command to call Admin/GetMostroVersion
+          const result = await mostroSub.exec([
+            'grpcurl',
+            '-plaintext',
+            'localhost:50051',
+            'Admin/GetMostroVersion'
+          ])
+          
+          // Check if the command was successful
+          if (result.exitCode !== 0) {
+            return {
+              result: 'failure',
+              message: `gRPC call failed: ${result.stderr || 'Unknown error'}`
+            }
+          }
+          
+          // Parse the response to check for version 14.0.0
+          const output = result.stdout || ''
+          if (output.includes('14.0.0')) {
+            return {
+              result: 'success',
+              message: 'Mostro RPC is responding with correct version 14.0.0'
+            }
+          } else {
+            return {
+              result: 'failure',
+              message: `Unexpected version response: ${output}`
+            }
+          }
+        } catch (error) {
+          return {
+            result: 'failure',
+            message: `Health check failed: ${error instanceof Error ? error.message : String(error)}`
+          }
+        }
+      },
+    },
+    requires: ['primary'],
   })
 })
