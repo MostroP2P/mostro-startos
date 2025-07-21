@@ -10,9 +10,9 @@ export const setDependencies = sdk.setupDependencies(async ({ effects }: { effec
 
 
   currentDeps['lnd'] = {
-      kind: 'running',
-      versionRange: '>=0.18.3',
-    healthChecks: ['synced'],
+    kind: 'running',
+    versionRange: '>=0.18.3',
+    healthChecks: ['sync-progress'],
   }
 
   return currentDeps

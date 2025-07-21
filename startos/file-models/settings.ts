@@ -3,7 +3,7 @@ import { FileHelper, matches } from '@start9labs/start-sdk'
 const { object, string, boolean, natural, number, array } = matches
 
 // Shape definition for daemon settings based on TOML structure
-// Note: Sensitive data like nsec_privkey is stored in storeJson, not here
+// Note: Only db_password is stored in storeJson as sensitive data
 const daemonSettingsShape = object({
   // Lightning configuration
   lightning: object({
@@ -17,8 +17,9 @@ const daemonSettingsShape = object({
     payment_retries_interval: natural,
   }),
 
-  // Nostr configuration (without sensitive private key)
+  // Nostr configuration (now includes private key)
   nostr: object({
+    nsec_privkey: string,
     relays: array(string),
   }),
 
@@ -55,7 +56,7 @@ const daemonSettingsShape = object({
 export const daemon_settings = FileHelper.toml(
   {
     volumeId: 'main',
-    subpath: '/root/.mostro/settings.toml',
+    subpath: '/settings.toml',
   },
   daemonSettingsShape,
 ) 

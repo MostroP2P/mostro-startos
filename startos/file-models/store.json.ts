@@ -6,7 +6,6 @@ const { object, string } = matches
 // All other configuration is stored in settings.toml via daemon_settings
 const shape = object({
     // Sensitive data that should not be in plain TOML files
-    nsec_privkey: string,  // Nostr private key
     db_password: string,   // Database password (if needed)
 })
 

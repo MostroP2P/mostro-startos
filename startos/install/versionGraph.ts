@@ -15,7 +15,6 @@ export const versionGraph = VersionGraph.of({
     } catch {
       console.log("Couldn't find existing store.json. Creating with defaults")
       await storeJson.write(effects, {
-        nsec_privkey: 'nsec1...',
         db_password: '',
       })
     }
@@ -38,6 +37,7 @@ export const versionGraph = VersionGraph.of({
           payment_retries_interval: 60,
         },
         nostr: {
+          nsec_privkey: 'nsec1...',
           relays: ['ws://localhost:7000'],
         },
         mostro: {
@@ -55,7 +55,7 @@ export const versionGraph = VersionGraph.of({
           bitcoin_price_api_url: 'https://api.yadio.io',
         },
         database: {
-          url: 'sqlite://mostro.db',
+          url: 'sqlite://mostro/mostro.db',
         },
         rpc: {
           enabled: false,

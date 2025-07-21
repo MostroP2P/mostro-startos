@@ -164,23 +164,9 @@ export const mostroSettings = sdk.Action.withInput(
 
     async ({ effects, input }) => {
         const currentSensitiveConfig = await storeJson.read((s) => s).const(effects)
-        const currentTomlConfig = await daemon_settings.read((s) => s).const(effects)
 
-        // Prepare complete TOML config with updated mostro section
-        const newTomlConfig = {
-            lightning: currentTomlConfig?.lightning || {
-                lnd_cert_file: '/home/user/.polar/networks/1/volumes/lnd/alice/tls.cert',
-                lnd_macaroon_file: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
-                lnd_grpc_host: 'https://127.0.0.1:10001',
-                invoice_expiration_window: 3600,
-                hold_invoice_cltv_delta: 144,
-                hold_invoice_expiration_window: 300,
-                payment_attempts: 3,
-                payment_retries_interval: 60,
-            },
-            nostr: currentTomlConfig?.nostr || {
-                relays: ['ws://localhost:7000'],
-            },
+        // Prepare only the mostro section
+        const mostroConfig = {
             mostro: {
                 fee: input.fee,
                 max_routing_fee: input.max_routing_fee,
@@ -195,31 +181,16 @@ export const mostroSettings = sdk.Action.withInput(
                 publish_mostro_info_interval: input.publish_mostro_info_interval,
                 bitcoin_price_api_url: input.bitcoin_price_api_url,
             },
-            database: currentTomlConfig?.database || {
-                url: 'sqlite://mostro.db',
-            },
-            rpc: currentTomlConfig?.rpc || {
-                enabled: false,
-                listen_address: '127.0.0.1',
-                port: 50051,
-            },
         }
 
-        // Check if anything changed in TOML config
-        const tomlChanged = !currentTomlConfig ||
-            JSON.stringify(currentTomlConfig.mostro) !== JSON.stringify(newTomlConfig.mostro)
-
-        // Ensure sensitive config exists (we might need to initialize it)
+        // Ensure sensitive config exists with only db_password
         if (!currentSensitiveConfig) {
             await storeJson.write(effects, {
-                nsec_privkey: 'nsec1...',
                 db_password: '',
             })
         }
 
-        // Update TOML config if changed
-        if (tomlChanged) {
-            await daemon_settings.write(effects, newTomlConfig)
-        }
+        // Update only the mostro section
+        await daemon_settings.merge(effects, mostroConfig)
     },
 ) 

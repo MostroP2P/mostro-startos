@@ -9,15 +9,15 @@ export const inputSpec = InputSpec.of({
     lnd_cert_file: Value.text({
         name: 'LND Certificate File',
         description: 'Path to tls.cert file',
-        placeholder: '/home/user/.polar/networks/1/volumes/lnd/alice/tls.cert',
-        default: '/home/user/.polar/networks/1/volumes/lnd/alice/tls.cert',
+        placeholder: '/lnd/tls.cert',
+        default: '/lnd/tls.cert',
         required: true,
     }),
     lnd_macaroon_file: Value.text({
         name: 'LND Macaroon File',
         description: 'Path to macaroon file',
-        placeholder: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
-        default: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
+        placeholder: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
+        default: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
         required: true,
     }),
     lnd_grpc_host: Value.text({
@@ -116,10 +116,9 @@ export const lnSettings = sdk.Action.withInput(
 
     async ({ effects, input }) => {
         const currentSensitiveConfig = await storeJson.read((s) => s).const(effects)
-        const currentTomlConfig = await daemon_settings.read((s) => s).const(effects)
 
-        // Prepare complete TOML config with updated lightning section
-        const newTomlConfig = {
+        // Prepare only the lightning section
+        const lightningConfig = {
             lightning: {
                 lnd_cert_file: input.lnd_cert_file,
                 lnd_macaroon_file: input.lnd_macaroon_file,
@@ -130,48 +129,16 @@ export const lnSettings = sdk.Action.withInput(
                 payment_attempts: input.payment_attempts,
                 payment_retries_interval: input.payment_retries_interval,
             },
-            nostr: currentTomlConfig?.nostr || {
-                relays: ['ws://localhost:7000'],
-            },
-            mostro: currentTomlConfig?.mostro || {
-                fee: 0,
-                max_routing_fee: 0.001,
-                max_order_amount: 1000000,
-                min_payment_amount: 100,
-                expiration_hours: 24,
-                max_expiration_days: 15,
-                expiration_seconds: 900,
-                user_rates_sent_interval_seconds: 3600,
-                publish_relays_interval: 60,
-                pow: 0,
-                publish_mostro_info_interval: 300,
-                bitcoin_price_api_url: 'https://api.yadio.io',
-            },
-            database: currentTomlConfig?.database || {
-                url: 'sqlite://mostro.db',
-            },
-            rpc: currentTomlConfig?.rpc || {
-                enabled: false,
-                listen_address: '127.0.0.1',
-                port: 50051,
-            },
         }
 
-        // Check if anything changed in TOML config
-        const tomlChanged = !currentTomlConfig ||
-            JSON.stringify(currentTomlConfig.lightning) !== JSON.stringify(newTomlConfig.lightning)
-
-        // Ensure sensitive config exists (we might need to initialize it)
+        // Ensure sensitive config exists with only db_password
         if (!currentSensitiveConfig) {
             await storeJson.write(effects, {
-                nsec_privkey: 'nsec1...',
                 db_password: '',
             })
         }
 
-        // Update TOML config if changed
-        if (tomlChanged) {
-            await daemon_settings.write(effects, newTomlConfig)
-        }
+        // Update only the lightning section
+        await daemon_settings.merge(effects, lightningConfig)
     },
 ) 
