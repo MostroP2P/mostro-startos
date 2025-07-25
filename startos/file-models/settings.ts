@@ -1,3 +1,4 @@
+// @ts-ignore
 import { FileHelper, matches } from '@start9labs/start-sdk'
 
 const { object, string, boolean, natural, number, array } = matches
@@ -7,9 +8,7 @@ const { object, string, boolean, natural, number, array } = matches
 const daemonSettingsShape = object({
   // Lightning configuration
   lightning: object({
-    lnd_cert_file: string,
     lnd_macaroon_file: string,
-    lnd_grpc_host: string,
     invoice_expiration_window: natural,
     hold_invoice_cltv_delta: natural,
     hold_invoice_expiration_window: natural,

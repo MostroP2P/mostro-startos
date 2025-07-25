@@ -3,6 +3,7 @@ import { manifest as mostroManifest } from './manifest'
 import { storeJson } from './file-models/store.json'
 import { lndMountpoint, clnMountpoint } from './utils'
 import { daemon_settings } from './file-models/settings'
+import { current as mostroVersionInfo } from './install/versions'
 
 export const main = sdk.setupMain(async ({ effects, started }: { effects: any; started: any }) => {
   /**
@@ -41,6 +42,20 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
   })
 
   // ========================
+  // Read db_password_required from storeJson
+  // ========================
+  const store = await storeJson.read((s: any) => s).const(effects)
+  const dbPasswordRequired = !!store?.db_password_required
+  let dbPassword = ''
+  if (dbPasswordRequired) {
+    // Prompt the user for the password at runtime (session-only)
+    dbPassword = await sdk.Prompt.password({
+      message: 'Enter Mostro database password:',
+      required: true,
+    })
+  }
+
+  // ========================
   // SubContainer setup
   // ========================
 
@@ -50,6 +65,13 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
     mainMount,
     'mostro-sub',
   )
+
+  // ========================
+  // Daemon command construction
+  // ========================
+  const mostroCommand = dbPasswordRequired && dbPassword
+    ? ['mostrod', '-d', '/mostro', '-p', dbPassword]
+    : ['mostrod', '-d', '/mostro', '-c']
 
   /**
    * ======================== Daemons ========================
@@ -61,53 +83,55 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
   return sdk.Daemons.of(effects, started).addDaemon('primary', {
     subcontainer: mostroSub,
     exec: {
-      command: ['mostrod', '-d', '/mostro', '-c', 'true']
+      command: mostroCommand
     },
     ready: { display: null, fn: () => ({ result: 'success', message: null }) },
     requires: [],
   })
-  // .addHealthCheck('rpc version check', {
-  //   ready: {
-  //     display: "RPC Version Check",
-  //     fn: async (): Promise<{ result: 'success' | 'failure'; message: string | null }> => {
-  //       try {
-  //         // Execute grpcurl command to call Admin/GetMostroVersion
-  //         const result = await mostroSub.exec([
-  //           'grpcurl',
-  //           '-plaintext',
-  //           'localhost:50051',
-  //           'Admin/GetMostroVersion'
-  //         ])
+  .addHealthCheck('rpc version check', {
+    ready: {
+      display: "RPC Version Check",
+      fn: async (): Promise<{ result: 'success' | 'failure'; message: string | null }> => {
+        try {
+          // Execute grpcurl command to call Admin/GetMostroVersion
+          const result = await mostroSub.exec([
+            'grpcurl',
+            '-plaintext',
+            'localhost:50051',
+            'Admin/GetMostroVersion'
+          ])
 
-  //         // Check if the command was successful
-  //         if (result.exitCode !== 0) {
-  //           return {
-  //             result: 'failure',
-  //             message: `gRPC call failed: ${result.stderr || 'Unknown error'}`
-  //           }
-  //         }
+          // Check if the command was successful
+          if (result.exitCode !== 0) {
+            return {
+              result: 'failure',
+              message: `gRPC call failed: ${result.stderr || 'Unknown error'}`
+            }
+          }
 
-  //         // Parse the response to check for version 14.0.0
-  //         const output = result.stdout || ''
-  //         if (output.includes('14.0.0')) {
-  //           return {
-  //             result: 'success',
-  //             message: 'Mostro RPC is responding with correct version 14.0.0'
-  //           }
-  //         } else {
-  //           return {
-  //             result: 'failure',
-  //             message: `Unexpected version response: ${output}`
-  //           }
-  //         }
-  //       } catch (error) {
-  //         return {
-  //           result: 'failure',
-  //           message: `Health check failed: ${error instanceof Error ? error.message : String(error)}`
-  //         }
-  //       }
-  //     },
-  //   },
-  //   requires: ['primary'],
-  // })
+          // Parse the response to check for version
+          const output = result.stdout || ''
+          // Extract the version part before ':' if present
+          const expectedVersion = mostroVersionInfo.version
+          if (output.includes(expectedVersion)) {
+            return {
+              result: 'success',
+              message: `Mostro RPC is responding with correct version ${expectedVersion}`
+            }
+          } else {
+            return {
+              result: 'failure',
+              message: `Unexpected version response: ${output}`
+            }
+          }
+        } catch (error) {
+          return {
+            result: 'failure',
+            message: `Health check failed: ${error instanceof Error ? error.message : String(error)}`
+          }
+        }
+      },
+    },
+    requires: ['primary'],
+  })
 })

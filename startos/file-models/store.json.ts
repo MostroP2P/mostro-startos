@@ -6,7 +6,7 @@ const { object, string } = matches
 // All other configuration is stored in settings.toml via daemon_settings
 const shape = object({
     // Sensitive data that should not be in plain TOML files
-    db_password: string,   // Database password (if needed)
+    db_password_required: matches.boolean,
 })
 
 export const storeJson = FileHelper.json(

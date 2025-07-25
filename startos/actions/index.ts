@@ -4,6 +4,7 @@ import { nostrSettings } from './nostrSettings'
 import { mostroSettings } from './mostroSettings'
 import { rpcSettings } from './rpcSettings'
 import { databaseSettings } from './databaseSettings'
+import { dbPasswordRequiredSettings } from './databaseSettings'
 
 export const actions = sdk.Actions.of()
     .addAction(lnSettings)
@@ -11,3 +12,4 @@ export const actions = sdk.Actions.of()
     .addAction(mostroSettings)
     .addAction(rpcSettings)
     .addAction(databaseSettings)
+    .addAction(dbPasswordRequiredSettings)

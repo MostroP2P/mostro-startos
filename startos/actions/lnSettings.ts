@@ -6,25 +6,11 @@ const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
     // Lightning configuration
-    lnd_cert_file: Value.text({
-        name: 'LND Certificate File',
-        description: 'Path to tls.cert file',
-        placeholder: '/lnd/tls.cert',
-        default: '/lnd/tls.cert',
-        required: true,
-    }),
     lnd_macaroon_file: Value.text({
         name: 'LND Macaroon File',
         description: 'Path to macaroon file',
         placeholder: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
         default: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
-        required: true,
-    }),
-    lnd_grpc_host: Value.text({
-        name: 'LND gRPC Host',
-        description: 'LND gRPC host and port',
-        placeholder: 'https://127.0.0.1:10001',
-        default: 'https://127.0.0.1:10001',
         required: true,
     }),
     invoice_expiration_window: Value.number({
@@ -88,13 +74,13 @@ export const lnSettings = sdk.Action.withInput(
 
     inputSpec,
 
-    async ({ effects }) => {
-        const tomlConfig = await daemon_settings.read((s) => s).const(effects)
+    async ({ effects }: { effects: any }) => {
+        const tomlConfig = await daemon_settings.read((s: any) => s).const(effects)
 
         const lightningConfig = tomlConfig?.lightning || {
-            lnd_cert_file: '/home/user/.polar/networks/1/volumes/lnd/alice/tls.cert',
+            lnd_cert_file: '/lnd/tls.cert',
             lnd_macaroon_file: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
-            lnd_grpc_host: 'https://127.0.0.1:10001',
+            lnd_grpc_host: 'https://lnd.startos:10009',
             invoice_expiration_window: 3600,
             hold_invoice_cltv_delta: 144,
             hold_invoice_expiration_window: 300,
@@ -114,15 +100,15 @@ export const lnSettings = sdk.Action.withInput(
         }
     },
 
-    async ({ effects, input }) => {
-        const currentSensitiveConfig = await storeJson.read((s) => s).const(effects)
+    async ({ effects, input }: { effects: any, input: any }) => {
+        const currentSensitiveConfig = await storeJson.read((s: any) => s).const(effects)
 
         // Prepare only the lightning section
         const lightningConfig = {
             lightning: {
-                lnd_cert_file: input.lnd_cert_file,
+                lnd_cert_file: '/lnd/tls.cert',
                 lnd_macaroon_file: input.lnd_macaroon_file,
-                lnd_grpc_host: input.lnd_grpc_host,
+                lnd_grpc_host: 'https://lnd.startos:10009',
                 invoice_expiration_window: input.invoice_expiration_window,
                 hold_invoice_cltv_delta: input.hold_invoice_cltv_delta,
                 hold_invoice_expiration_window: input.hold_invoice_expiration_window,

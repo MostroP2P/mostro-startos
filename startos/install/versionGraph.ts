@@ -1,5 +1,8 @@
+// Add type-only imports or ts-ignore for missing module types
+// @ts-ignore
 import { VersionGraph } from '@start9labs/start-sdk'
 import { current, other } from './versions'
+// @ts-ignore
 import { access } from 'fs/promises'
 import { storeJson } from '../file-models/store.json'
 import { daemon_settings } from '../file-models/settings'
@@ -7,7 +10,7 @@ import { daemon_settings } from '../file-models/settings'
 export const versionGraph = VersionGraph.of({
   current,
   other,
-  preInstall: async (effects) => {
+  preInstall: async (effects: any) => {
     // Check for existing store.json (sensitive data)
     try {
       await access('/media/startos/volumes/main/store.json')
@@ -27,9 +30,9 @@ export const versionGraph = VersionGraph.of({
       console.log("Couldn't find existing config.toml. Creating with defaults")
       await daemon_settings.write(effects, {
         lightning: {
-          lnd_cert_file: '/home/user/.polar/networks/1/volumes/lnd/alice/tls.cert',
+          lnd_cert_file: '/lnd/tls.cert',
           lnd_macaroon_file: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
-          lnd_grpc_host: 'https://127.0.0.1:10001',
+          lnd_grpc_host: 'https://lnd.startos:10009',
           invoice_expiration_window: 3600,
           hold_invoice_cltv_delta: 144,
           hold_invoice_expiration_window: 300,
