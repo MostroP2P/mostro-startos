@@ -6,13 +6,6 @@ const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
     // Lightning configuration
-    lnd_macaroon_file: Value.text({
-        name: 'LND Macaroon File',
-        description: 'Path to macaroon file',
-        placeholder: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
-        default: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
-        required: true,
-    }),
     invoice_expiration_window: Value.number({
         name: 'Invoice Expiration Window',
         description: 'Lightning invoices sent by the buyer to Mostro should have at least this expiration time in seconds',
@@ -79,7 +72,7 @@ export const lnSettings = sdk.Action.withInput(
 
         const lightningConfig = tomlConfig?.lightning || {
             lnd_cert_file: '/lnd/tls.cert',
-            lnd_macaroon_file: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
+            lnd_macaroon_file: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
             lnd_grpc_host: 'https://lnd.startos:10009',
             invoice_expiration_window: 3600,
             hold_invoice_cltv_delta: 144,
@@ -107,7 +100,7 @@ export const lnSettings = sdk.Action.withInput(
         const lightningConfig = {
             lightning: {
                 lnd_cert_file: '/lnd/tls.cert',
-                lnd_macaroon_file: input.lnd_macaroon_file,
+                lnd_macaroon_file: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
                 lnd_grpc_host: 'https://lnd.startos:10009',
                 invoice_expiration_window: input.invoice_expiration_window,
                 hold_invoice_cltv_delta: input.hold_invoice_cltv_delta,

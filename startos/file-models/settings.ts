@@ -8,7 +8,6 @@ const { object, string, boolean, natural, number, array } = matches
 const daemonSettingsShape = object({
   // Lightning configuration
   lightning: object({
-    lnd_macaroon_file: string,
     invoice_expiration_window: natural,
     hold_invoice_cltv_delta: natural,
     hold_invoice_expiration_window: natural,

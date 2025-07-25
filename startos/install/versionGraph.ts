@@ -31,7 +31,7 @@ export const versionGraph = VersionGraph.of({
       await daemon_settings.write(effects, {
         lightning: {
           lnd_cert_file: '/lnd/tls.cert',
-          lnd_macaroon_file: '/home/user/.polar/networks/1/volumes/lnd/alice/data/chain/bitcoin/regtest/admin.macaroon',
+          lnd_macaroon_file: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
           lnd_grpc_host: 'https://lnd.startos:10009',
           invoice_expiration_window: 3600,
           hold_invoice_cltv_delta: 144,
