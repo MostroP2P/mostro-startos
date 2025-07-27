@@ -42,18 +42,14 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
   })
 
   // ========================
-  // Read db_password_required from storeJson
+  // Read database configuration from storeJson
   // ========================
   const store = await storeJson.read((s: any) => s).const(effects)
   const dbPasswordRequired = !!store?.db_password_required
-  let dbPassword = ''
-  if (dbPasswordRequired) {
-    // Prompt the user for the password at runtime (session-only)
-    dbPassword = await sdk.Prompt.password({
-      message: 'Enter Mostro database password:',
-      required: true,
-    })
-  }
+  const dbPassword = store?.db_password || ''
+
+  // Note: Password is stored securely by StartOS
+  // If password is required, it will be provided to the service
 
   // ========================
   // SubContainer setup
@@ -69,9 +65,19 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
   // ========================
   // Daemon command construction
   // ========================
-  const mostroCommand = dbPasswordRequired && dbPassword
-    ? ['mostrod', '-d', '/mostro', '-p', dbPassword]
-    : ['mostrod', '-d', '/mostro', '-c']
+  // Build the command array based on whether password is required
+  let mostroCommand: [string, ...string[]] = ['mostrod', '-d', '/mostro', '-c']
+
+  if (dbPasswordRequired && dbPassword) {
+    // Add password parameter when password is required and available
+    mostroCommand = ['mostrod', '-d', '/mostro', '-c', '-p', dbPassword]
+    console.log('Database password protection enabled. Starting with password.')
+  } else if (dbPasswordRequired && !dbPassword) {
+    console.warn('Database password is required but no password is stored.')
+    console.warn('Service may fail to start until password is provided.')
+  } else {
+    console.log('Database password protection disabled. Starting without password.')
+  }
 
   /**
    * ======================== Daemons ========================
@@ -88,50 +94,88 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
     ready: { display: null, fn: () => ({ result: 'success', message: null }) },
     requires: [],
   })
-  .addHealthCheck('rpc version check', {
-    ready: {
-      display: "RPC Version Check",
-      fn: async (): Promise<{ result: 'success' | 'failure'; message: string | null }> => {
-        try {
-          // Execute grpcurl command to call Admin/GetMostroVersion
-          const result = await mostroSub.exec([
-            'grpcurl',
-            '-plaintext',
-            'localhost:50051',
-            'Admin/GetMostroVersion'
-          ])
+    .addHealthCheck('rpc-version-check', {
+      ready: {
+        display: "RPC Version Check",
+        fn: async (): Promise<{ result: 'success' | 'failure'; message: string | null }> => {
+          try {
+            // First, let's check what proto files are available in different locations
+            console.log('Checking available proto files...')
+            const lsResult1 = await mostroSub.exec(['ls', '-la', '/mostro/proto'])
+            console.log('Proto directory contents (/mostro/proto):', lsResult1.stdout)
 
-          // Check if the command was successful
-          if (result.exitCode !== 0) {
+            const lsResult2 = await mostroSub.exec(['ls', '-la', '/proto'])
+            console.log('Proto directory contents (/proto):', lsResult2.stdout)
+
+            const lsResult3 = await mostroSub.exec(['find', '/', '-name', 'admin.proto', '-type', 'f', '2>/dev/null'])
+            console.log('Found admin.proto files:', lsResult3.stdout)
+
+            // Execute grpcurl command to call Admin/GetMostroVersion
+            // Use the proto file that should be copied to /proto in the Docker image
+            let result = await mostroSub.exec([
+              'grpcurl',
+              '-plaintext',
+              '-import-path',
+              '/proto',
+              '-proto',
+              'admin.proto',
+              '-d',
+              '{}',
+              '127.0.0.1:50051',
+              'mostro.admin.v1.AdminService/GetVersion'
+            ])
+
+            // If that fails, try with absolute path and import path
+            if (result.exitCode !== 0) {
+              console.log('Trying with absolute proto path and import path...')
+              result = await mostroSub.exec([
+                'grpcurl',
+                '-plaintext',
+                '-import-path',
+                '/proto',
+                '-proto',
+                '/proto/admin.proto',
+                '-d',
+                '{}',
+                '127.0.0.1:50051',
+                '/mostro/mostro.admin.v1.AdminService/GetVersion'
+              ])
+            }
+
+            // Check if the command was successful
+            if (result.exitCode !== 0) {
+              console.log(`gRPC call failed with exit code ${result.exitCode}`)
+              console.log(`stderr: ${result.stderr}`)
+              console.log(`stdout: ${result.stdout}`)
+              return {
+                result: 'failure',
+                message: `gRPC call failed: ${result.stderr || 'Unknown error'}`
+              }
+            }
+
+            // Parse the response to check for version
+            const output = result.stdout || ''
+            // Extract the version part before ':' if present
+            const expectedVersion = '0.14.1' // Hardcoded version from VersionInfo
+            if (output.includes(expectedVersion)) {
+              return {
+                result: 'success',
+                message: `Mostro RPC is responding with correct version ${expectedVersion}`
+              }
+            } else {
+              return {
+                result: 'failure',
+                message: `Unexpected version response: ${output}`
+              }
+            }
+          } catch (error) {
             return {
               result: 'failure',
-              message: `gRPC call failed: ${result.stderr || 'Unknown error'}`
+              message: `Health check failed: ${error instanceof Error ? error.message : String(error)}`
             }
           }
-
-          // Parse the response to check for version
-          const output = result.stdout || ''
-          // Extract the version part before ':' if present
-          const expectedVersion = mostroVersionInfo.version
-          if (output.includes(expectedVersion)) {
-            return {
-              result: 'success',
-              message: `Mostro RPC is responding with correct version ${expectedVersion}`
-            }
-          } else {
-            return {
-              result: 'failure',
-              message: `Unexpected version response: ${output}`
-            }
-          }
-        } catch (error) {
-          return {
-            result: 'failure',
-            message: `Health check failed: ${error instanceof Error ? error.message : String(error)}`
-          }
-        }
+        },
       },
-    },
-    requires: ['primary'],
-  })
+      requires: ['primary'],
+    })
 })

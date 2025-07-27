@@ -75,9 +75,10 @@ export const rpcSettings = sdk.Action.withInput(
             },
         }
 
-        // Ensure sensitive config exists with only db_password
+        // Ensure sensitive config exists
         if (!currentSensitiveConfig) {
             await storeJson.write(effects, {
+                db_password_required: false,
                 db_password: '',
             })
         }

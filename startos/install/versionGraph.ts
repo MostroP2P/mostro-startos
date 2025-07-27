@@ -18,6 +18,7 @@ export const versionGraph = VersionGraph.of({
     } catch {
       console.log("Couldn't find existing store.json. Creating with defaults")
       await storeJson.write(effects, {
+        db_password_required: false,
         db_password: '',
       })
     }
@@ -41,7 +42,7 @@ export const versionGraph = VersionGraph.of({
         },
         nostr: {
           nsec_privkey: 'nsec1...',
-          relays: ['ws://localhost:7000'],
+          relays: ['wss://relay.mostro.network'],
         },
         mostro: {
           fee: 0,
