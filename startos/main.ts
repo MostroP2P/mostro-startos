@@ -4,6 +4,7 @@ import { storeJson } from './file-models/store.json'
 import { lndMountpoint, clnMountpoint } from './utils'
 import { daemon_settings } from './file-models/settings'
 import { current as mostroVersionInfo } from './install/versions'
+import { rpcSettings } from './actions/rpcSettings'
 
 export const main = sdk.setupMain(async ({ effects, started }: { effects: any; started: any }) => {
   /**
@@ -97,18 +98,18 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
     .addHealthCheck('rpc-version-check', {
       ready: {
         display: "RPC Version Check",
-        fn: async (): Promise<{ result: 'success' | 'failure'; message: string | null }> => {
+        fn: async (): Promise<{ result: 'success' | 'failure' | 'disabled'; message: string | null }> => {
           try {
-            // First, let's check what proto files are available in different locations
-            console.log('Checking available proto files...')
-            const lsResult1 = await mostroSub.exec(['ls', '-la', '/mostro/proto'])
-            console.log('Proto directory contents (/mostro/proto):', lsResult1.stdout)
+            // Get the current RPC settings from TOML config
+            const tomlConfig = await daemon_settings.read((s) => s).const(effects)
+            const rpcConfig = tomlConfig?.rpc || { enabled: false }
 
-            const lsResult2 = await mostroSub.exec(['ls', '-la', '/proto'])
-            console.log('Proto directory contents (/proto):', lsResult2.stdout)
-
-            const lsResult3 = await mostroSub.exec(['find', '/', '-name', 'admin.proto', '-type', 'f', '2>/dev/null'])
-            console.log('Found admin.proto files:', lsResult3.stdout)
+            if (!rpcConfig.enabled) {
+              return {
+                result: 'disabled',
+                message: 'RPC server is disabled'
+              }
+            }
 
             // Execute grpcurl command to call Admin/GetMostroVersion
             // Use the proto file that should be copied to /proto in the Docker image
@@ -168,7 +169,7 @@ export const main = sdk.setupMain(async ({ effects, started }: { effects: any; s
                 message: `Unexpected version response: ${output}`
               }
             }
-          } catch (error) {
+          } catch (error: unknown) {
             return {
               result: 'failure',
               message: `Health check failed: ${error instanceof Error ? error.message : String(error)}`
