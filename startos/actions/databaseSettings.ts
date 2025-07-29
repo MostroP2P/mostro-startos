@@ -43,10 +43,14 @@ export const databaseSettings = sdk.Action.withInput(
         const dbPassword = input.db_password?.trim() || ''
         const passwordRequired = dbPassword.length > 0
 
+        // Get current config to preserve other fields
+        const currentConfig = await storeJson.read((s: any) => s).const(effects)
+
         // Update store.json with password requirement flag and actual password
         await storeJson.write(effects, {
             db_password_required: passwordRequired,
             db_password: dbPassword,
+            nostrKeysConfigured: currentConfig?.nostrKeysConfigured || false,
         })
 
         // Update database URL in settings.toml

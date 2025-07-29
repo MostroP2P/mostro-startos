@@ -20,6 +20,7 @@ export const versionGraph = VersionGraph.of({
       await storeJson.write(effects, {
         db_password_required: false,
         db_password: '',
+        nostrKeysConfigured: false,
       })
     }
 

@@ -67,11 +67,17 @@ export const nostrSettings = sdk.Action.withInput(
             },
         }
 
-        // Ensure sensitive config exists
+        // Ensure sensitive config exists and mark Nostr keys as configured
         if (!currentSensitiveConfig) {
             await storeJson.write(effects, {
                 db_password_required: false,
                 db_password: '',
+                nostrKeysConfigured: true,
+            })
+        } else {
+            // Update existing config to mark Nostr keys as configured
+            await storeJson.merge(effects, {
+                nostrKeysConfigured: true,
             })
         }
 

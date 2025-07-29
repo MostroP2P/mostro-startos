@@ -80,6 +80,7 @@ export const rpcSettings = sdk.Action.withInput(
             await storeJson.write(effects, {
                 db_password_required: false,
                 db_password: '',
+                nostrKeysConfigured: false,
             })
         }
 
