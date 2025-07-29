@@ -20,12 +20,11 @@ export const manifest = setupManifest({
       source: {
         dockerTag: 'arkanoider/mostro:0.14.1',
       },
-      arch: ['x86_64'],
-      emulateMissingAs: 'x86_64',
+      arch: ['x86_64', 'aarch64'],
     },
   },
   hardwareRequirements: {
-    arch: ['x86_64'],
+    arch: ['x86_64', 'aarch64'],
     ram: 512,
     device: undefined,
   },

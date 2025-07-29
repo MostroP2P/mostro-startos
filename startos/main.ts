@@ -1,7 +1,6 @@
 import { sdk } from './sdk'
 import { manifest as mostroManifest } from './manifest'
 import { storeJson } from './file-models/store.json'
-import { lndMountpoint, clnMountpoint } from './utils'
 import { daemon_settings } from './file-models/settings'
 import { current as mostroVersionInfo } from './install/versions'
 import { rpcSettings } from './actions/rpcSettings'
