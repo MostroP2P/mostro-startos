@@ -1,6 +1,5 @@
 import { sdk } from './sdk'
 
-
 export const setInterfaces = sdk.setupInterfaces(async ({ effects }) => {
   // RPC
   const rpcMulti = sdk.MultiHost.of(effects, 'rpc')

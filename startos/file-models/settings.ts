@@ -60,4 +60,4 @@ export const daemon_settings = FileHelper.toml(
     subpath: '/settings.toml',
   },
   daemonSettingsShape,
-) 
+)

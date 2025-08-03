@@ -16,18 +16,14 @@ export const manifest = setupManifest({
   },
   volumes: ['main'],
   images: {
-    'mostro': {
+    mostro: {
       source: {
-        dockerTag: 'arkanoider/mostro:0.14.1',
+        dockerTag: 'mostrop2p/mostro:0.14.1',
       },
       arch: ['x86_64', 'aarch64'],
     },
   },
-  hardwareRequirements: {
-    arch: ['x86_64', 'aarch64'],
-    ram: 512,
-    device: undefined,
-  },
+  hardwareRequirements: {},
   alerts: {
     install: null,
     update: null,
@@ -40,7 +36,7 @@ export const manifest = setupManifest({
     lnd: {
       description: 'Lightning node',
       optional: true,
-      s9pk: 'https://github.com/Start9Labs/lnd-startos/releases/download/v0.19.1-beta.1-alpha.5/lnd.s9pk'
+      s9pk: 'https://github.com/Start9Labs/lnd-startos/releases/download/v0.19.1-beta.1-alpha.5/lnd.s9pk',
     },
   },
 })

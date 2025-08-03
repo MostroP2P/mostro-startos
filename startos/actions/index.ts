@@ -6,8 +6,8 @@ import { rpcSettings } from './rpcSettings'
 import { databaseSettings } from './databaseSettings'
 
 export const actions = sdk.Actions.of()
-    .addAction(lnSettings)
-    .addAction(nostrSettings)
-    .addAction(mostroSettings)
-    .addAction(rpcSettings)
-    .addAction(databaseSettings)
+  .addAction(lnSettings)
+  .addAction(nostrSettings)
+  .addAction(mostroSettings)
+  .addAction(rpcSettings)
+  .addAction(databaseSettings)
