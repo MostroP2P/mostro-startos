@@ -15,7 +15,7 @@ jobs:
     outputs:
       id: ${{ steps.read.outputs.id }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - id: read
         run: |
           id="$(awk -F"'" '/id:/ {print $2; exit}' startos/manifest/index.ts)"
