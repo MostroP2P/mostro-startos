@@ -26,7 +26,9 @@ jobs:
     if: needs.guard.outputs.id != 'hello-world'
     uses: start9labs/shared-workflows/.github/workflows/tagAndRelease.yml@master
     with:
-      REFERENCE_REGISTRY: ${{ vars.REFERENCE_REGISTRY }}
+      # Set vars.REFERENCE_REGISTRY in repo Settings → Variables (production registry).
+      # Defaults to Start9 community registry when unset — version lookup returns "not found" until published there.
+      REFERENCE_REGISTRY: ${{ vars.REFERENCE_REGISTRY || 'https://community-registry.start9.com' }}
       RELEASE_REGISTRY: ${{ vars.RELEASE_REGISTRY }}
       S3_S9PKS_BASE_URL: ${{ vars.S3_S9PKS_BASE_URL }}
     secrets:

@@ -19,4 +19,7 @@
 ## Package maintenance
 
 - [x] Verify LND volume mount paths (`main.ts`) — `/lnd/tls.cert`, macaroon path, `lnd.startos:10009`
-- [ ] Configure GitHub repo secrets/vars for CI (`DEV_KEY`, `REFERENCE_REGISTRY`, etc.)
+- [ ] Configure GitHub repo secrets/vars for CI:
+  - **Required secret:** `DEV_KEY` (developer signing key PEM — same as `start-cli init-key`)
+  - **Optional vars:** `REFERENCE_REGISTRY` (defaults to `https://community-registry.start9.com`), `RELEASE_REGISTRY`, `S3_S9PKS_BASE_URL`
+  - **Optional secrets (registry publish):** `S3_ACCESS_KEY`, `S3_SECRET_KEY`
