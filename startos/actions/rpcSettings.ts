@@ -1,11 +1,11 @@
-import { storeJson } from '../file-models/store.json'
-import { daemon_settings } from '../file-models/settings'
+import { storeJson } from '../fileModels/store.json'
+import { daemon_settings } from '../fileModels/settings'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 
 const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
-  // RPC configuration
   rpc_enabled: Value.select({
     name: 'RPC Server Enabled',
     description: 'Enable RPC server for direct admin communication',
@@ -36,55 +36,39 @@ export const inputSpec = InputSpec.of({
 export const rpcSettings = sdk.Action.withInput(
   'rpc-settings',
 
-  async ({ effects }) => ({
-    name: 'Configure RPC Settings',
-    description: 'Configure RPC server settings for administrative access',
+  async () => ({
+    name: i18n('Configure RPC Settings'),
+    description: i18n('Configure RPC server settings for administrative access'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Mostro',
+    group: i18n('Mostro'),
     visibility: 'enabled',
   }),
 
   inputSpec,
 
   async ({ effects }) => {
-    const tomlConfig = await daemon_settings.read((s) => s).const(effects)
-
-    const rpcConfig = tomlConfig?.rpc || {
-      enabled: false,
-      listen_address: '127.0.0.1',
-      port: 50051,
-    }
+    const rpcConfig = await daemon_settings.read((s) => s?.rpc).once()
 
     return {
-      rpc_enabled: rpcConfig.enabled ? ('true' as const) : ('false' as const),
-      rpc_listen_address: rpcConfig.listen_address,
-      rpc_port: rpcConfig.port,
+      rpc_enabled: rpcConfig?.enabled ? ('true' as const) : ('false' as const),
+      rpc_listen_address: rpcConfig?.listen_address ?? '127.0.0.1',
+      rpc_port: rpcConfig?.port ?? 50051,
     }
   },
 
   async ({ effects, input }) => {
-    const currentSensitiveConfig = await storeJson.read((s) => s).const(effects)
+    const configured = await storeJson.read((s) => s?.nostrKeysConfigured).once()
+    if (configured === null) {
+      await storeJson.merge(effects, { nostrKeysConfigured: false })
+    }
 
-    // Prepare only the rpc section
-    const rpcConfig = {
+    await daemon_settings.merge(effects, {
       rpc: {
         enabled: input.rpc_enabled === 'true',
         listen_address: input.rpc_listen_address,
         port: input.rpc_port,
       },
-    }
-
-    // Ensure sensitive config exists
-    if (!currentSensitiveConfig) {
-      await storeJson.write(effects, {
-        db_password_required: false,
-        db_password: '',
-        nostrKeysConfigured: false,
-      })
-    }
-
-    // Update only the rpc section
-    await daemon_settings.merge(effects, rpcConfig)
+    })
   },
 )

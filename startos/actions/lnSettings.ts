@@ -1,11 +1,11 @@
-import { storeJson } from '../file-models/store.json'
-import { daemon_settings } from '../file-models/settings'
+import { storeJson } from '../fileModels/store.json'
+import { daemon_settings } from '../fileModels/settings'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 
 const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
-  // Lightning configuration
   invoice_expiration_window: Value.number({
     name: 'Invoice Expiration Window',
     description:
@@ -58,51 +58,40 @@ export const inputSpec = InputSpec.of({
 export const lnSettings = sdk.Action.withInput(
   'ln-settings',
 
-  async ({ effects }) => ({
-    name: 'Configure Lightning Node Settings',
-    description: 'Configure Lightning node connection settings for Mostro',
+  async () => ({
+    name: i18n('Configure Lightning Node Settings'),
+    description: i18n('Configure Lightning node connection settings for Mostro'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Mostro',
+    group: i18n('Mostro'),
     visibility: 'enabled',
   }),
 
   inputSpec,
 
-  async ({ effects }: { effects: any }) => {
-    const tomlConfig = await daemon_settings.read((s: any) => s).const(effects)
-
-    const lightningConfig = tomlConfig?.lightning || {
-      lnd_cert_file: '/lnd/tls.cert',
-      lnd_macaroon_file: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
-      lnd_grpc_host: 'https://lnd.startos:10009',
-      invoice_expiration_window: 3600,
-      hold_invoice_cltv_delta: 144,
-      hold_invoice_expiration_window: 300,
-      payment_attempts: 3,
-      payment_retries_interval: 60,
-    }
+  async ({ effects }) => {
+    const lightningConfig = await daemon_settings
+      .read((s) => s?.lightning)
+      .once()
 
     return {
-      lnd_cert_file: lightningConfig.lnd_cert_file,
-      lnd_macaroon_file: lightningConfig.lnd_macaroon_file,
-      lnd_grpc_host: lightningConfig.lnd_grpc_host,
-      invoice_expiration_window: lightningConfig.invoice_expiration_window,
-      hold_invoice_cltv_delta: lightningConfig.hold_invoice_cltv_delta,
+      invoice_expiration_window: lightningConfig?.invoice_expiration_window ?? 3600,
+      hold_invoice_cltv_delta: lightningConfig?.hold_invoice_cltv_delta ?? 144,
       hold_invoice_expiration_window:
-        lightningConfig.hold_invoice_expiration_window,
-      payment_attempts: lightningConfig.payment_attempts,
-      payment_retries_interval: lightningConfig.payment_retries_interval,
+        lightningConfig?.hold_invoice_expiration_window ?? 300,
+      payment_attempts: lightningConfig?.payment_attempts ?? 3,
+      payment_retries_interval:
+        lightningConfig?.payment_retries_interval ?? 60,
     }
   },
 
-  async ({ effects, input }: { effects: any; input: any }) => {
-    const currentSensitiveConfig = await storeJson
-      .read((s: any) => s)
-      .const(effects)
+  async ({ effects, input }) => {
+    const store = await storeJson.read((s) => s?.nostrKeysConfigured).once()
+    if (store === null) {
+      await storeJson.merge(effects, { nostrKeysConfigured: false })
+    }
 
-    // Prepare only the lightning section
-    const lightningConfig = {
+    await daemon_settings.merge(effects, {
       lightning: {
         lnd_cert_file: '/lnd/tls.cert',
         lnd_macaroon_file: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
@@ -113,18 +102,6 @@ export const lnSettings = sdk.Action.withInput(
         payment_attempts: input.payment_attempts,
         payment_retries_interval: input.payment_retries_interval,
       },
-    }
-
-    // Ensure sensitive config exists
-    if (!currentSensitiveConfig) {
-      await storeJson.write(effects, {
-        db_password_required: false,
-        db_password: '',
-        nostrKeysConfigured: false,
-      })
-    }
-
-    // Update only the lightning section
-    await daemon_settings.merge(effects, lightningConfig)
+    })
   },
 )

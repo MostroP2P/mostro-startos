@@ -32,9 +32,9 @@ Mostro requires a Lightning node to function. Configure your Lightning connectio
 
 **Default paths** (if using StartOS LND):
 ```
-Certificate: /mnt/lnd/tls.cert
-Macaroon: /mnt/lnd/data/chain/bitcoin/mainnet/admin.macaroon
-Host: https://lnd.embassy:10009
+Certificate: /lnd/tls.cert
+Macaroon: /lnd/data/chain/bitcoin/mainnet/admin.macaroon
+Host: https://lnd.startos:10009
 ```
 
 ### Nostr Configuration

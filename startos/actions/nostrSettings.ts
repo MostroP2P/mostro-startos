@@ -1,12 +1,12 @@
-import { storeJson } from '../file-models/store.json'
-import { daemon_settings } from '../file-models/settings'
+import { storeJson } from '../fileModels/store.json'
+import { daemon_settings } from '../fileModels/settings'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 import { isValidNsec, validateRelayList } from '../utils'
 
 const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
-  // Nostr configuration
   nsec_privkey: Value.text({
     name: 'Nostr Private Key',
     description:
@@ -28,45 +28,33 @@ export const inputSpec = InputSpec.of({
 export const nostrSettings = sdk.Action.withInput(
   'nostr-settings',
 
-  async ({ effects }) => ({
-    name: 'Configure Nostr Settings',
-    description: 'Configure Nostr settings for Mostro',
+  async () => ({
+    name: i18n('Configure Nostr Settings'),
+    description: i18n('Configure Nostr settings for Mostro'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Mostro',
+    group: i18n('Mostro'),
     visibility: 'enabled',
   }),
 
   inputSpec,
 
   async ({ effects }) => {
-    const tomlConfig = await daemon_settings.read((s) => s).const(effects)
-
-    const nostrConfig = tomlConfig?.nostr || {
-      nsec_privkey: 'nsec1...',
-      relays: ['wss://relay.mostro.network'],
-    }
-
-    // Parse relays array back to comma-separated string
-    const relaysString = nostrConfig.relays.join(',')
+    const nostrConfig = await daemon_settings.read((s) => s?.nostr).once()
 
     return {
-      nsec_privkey: nostrConfig.nsec_privkey,
-      relays: relaysString,
+      nsec_privkey: nostrConfig?.nsec_privkey ?? '',
+      relays: (nostrConfig?.relays ?? ['wss://relay.mostro.network']).join(','),
     }
   },
 
   async ({ effects, input }) => {
-    const currentSensitiveConfig = await storeJson.read((s) => s).const(effects)
-
-    // Validate Nostr private key
     if (!isValidNsec(input.nsec_privkey)) {
       throw new Error(
         'Invalid Nostr private key format. Please provide a valid nsec1... key.',
       )
     }
 
-    // Validate relay URLs
     const validRelays = validateRelayList(input.relays)
     if (validRelays.length === 0) {
       throw new Error(
@@ -74,29 +62,13 @@ export const nostrSettings = sdk.Action.withInput(
       )
     }
 
-    // Prepare only the nostr section for TOML (now includes nsec_privkey)
-    const nostrConfig = {
+    await storeJson.merge(effects, { nostrKeysConfigured: true })
+
+    await daemon_settings.merge(effects, {
       nostr: {
         nsec_privkey: input.nsec_privkey,
         relays: validRelays,
       },
-    }
-
-    // Ensure sensitive config exists and mark Nostr keys as configured
-    if (!currentSensitiveConfig) {
-      await storeJson.write(effects, {
-        db_password_required: false,
-        db_password: '',
-        nostrKeysConfigured: true,
-      })
-    } else {
-      // Update existing config to mark Nostr keys as configured
-      await storeJson.merge(effects, {
-        nostrKeysConfigured: true,
-      })
-    }
-
-    // Update only the nostr section
-    await daemon_settings.merge(effects, nostrConfig)
+    })
   },
 )

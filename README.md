@@ -50,13 +50,13 @@ make install
 
 ### Dependencies
 
-This service has an optional dependency on LND (Lightning Network Daemon) for Lightning Network functionality:
+This service has a **required** dependency on LND (Lightning Network Daemon):
 
-- **LND**: Lightning node for Bitcoin Lightning Network transactions
+- **LND**: Lightning node for Bitcoin Lightning Network transactions (must be installed and synced)
 
 ## Service Configuration
 
-The service is configured through the `startos/manifest.ts` file and uses the following settings:
+The service is configured through `startos/manifest/index.ts` and uses the following settings:
 
 - **Service ID**: `mostro`
 - **Upstream Repository**: <https://github.com/MostroP2P/mostro>

@@ -1,0 +1,23 @@
+export const DEFAULT_LANG = 'en_US'
+
+const dict = {
+  'Starting Mostro!': 0,
+  'Mostro': 1,
+  'Configure Lightning Node Settings': 2,
+  'Configure Lightning node connection settings for Mostro': 3,
+  'Configure Nostr Settings': 4,
+  'Configure Nostr settings for Mostro': 5,
+  'Configure Mostro Settings': 6,
+  'Configure Mostro trading and business logic settings': 7,
+  'Configure RPC Settings': 8,
+  'Configure RPC server settings for administrative access': 9,
+  'Mostro needs Nostr keys to function properly': 10,
+  'RPC Version Check': 11,
+} as const
+
+/**
+ * Plumbing. DO NOT EDIT.
+ */
+export type I18nKey = keyof typeof dict
+export type LangDict = Record<(typeof dict)[I18nKey], string>
+export default dict

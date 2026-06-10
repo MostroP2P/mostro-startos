@@ -1,11 +1,11 @@
-import { storeJson } from '../file-models/store.json'
-import { daemon_settings } from '../file-models/settings'
+import { storeJson } from '../fileModels/store.json'
+import { daemon_settings } from '../fileModels/settings'
+import { i18n } from '../i18n'
 import { sdk } from '../sdk'
 
 const { InputSpec, Value } = sdk
 
 export const inputSpec = InputSpec.of({
-  // Mostro configuration
   fee: Value.number({
     name: 'Mostro Fee',
     description: 'Mostro fee percentage',
@@ -118,57 +118,46 @@ export const inputSpec = InputSpec.of({
 export const mostroSettings = sdk.Action.withInput(
   'mostro-settings',
 
-  async ({ effects }) => ({
-    name: 'Configure Mostro Settings',
-    description: 'Configure Mostro trading and business logic settings',
+  async () => ({
+    name: i18n('Configure Mostro Settings'),
+    description: i18n('Configure Mostro trading and business logic settings'),
     warning: null,
     allowedStatuses: 'any',
-    group: 'Mostro',
+    group: i18n('Mostro'),
     visibility: 'enabled',
   }),
 
   inputSpec,
 
   async ({ effects }) => {
-    const tomlConfig = await daemon_settings.read((s) => s).const(effects)
-
-    const mostroConfig = tomlConfig?.mostro || {
-      fee: 0,
-      max_routing_fee: 0.001,
-      max_order_amount: 1000000,
-      min_payment_amount: 100,
-      expiration_hours: 24,
-      max_expiration_days: 15,
-      expiration_seconds: 900,
-      user_rates_sent_interval_seconds: 3600,
-      publish_relays_interval: 60,
-      pow: 0,
-      publish_mostro_info_interval: 300,
-      bitcoin_price_api_url: 'https://api.yadio.io',
-    }
+    const mostroConfig = await daemon_settings.read((s) => s?.mostro).once()
 
     return {
-      fee: mostroConfig.fee,
-      max_routing_fee: mostroConfig.max_routing_fee,
-      max_order_amount: mostroConfig.max_order_amount,
-      min_payment_amount: mostroConfig.min_payment_amount,
-      expiration_hours: mostroConfig.expiration_hours,
-      max_expiration_days: mostroConfig.max_expiration_days,
-      expiration_seconds: mostroConfig.expiration_seconds,
+      fee: mostroConfig?.fee ?? 0,
+      max_routing_fee: mostroConfig?.max_routing_fee ?? 0.001,
+      max_order_amount: mostroConfig?.max_order_amount ?? 1_000_000,
+      min_payment_amount: mostroConfig?.min_payment_amount ?? 100,
+      expiration_hours: mostroConfig?.expiration_hours ?? 24,
+      max_expiration_days: mostroConfig?.max_expiration_days ?? 15,
+      expiration_seconds: mostroConfig?.expiration_seconds ?? 900,
       user_rates_sent_interval_seconds:
-        mostroConfig.user_rates_sent_interval_seconds,
-      publish_relays_interval: mostroConfig.publish_relays_interval,
-      pow: mostroConfig.pow,
-      publish_mostro_info_interval: mostroConfig.publish_mostro_info_interval,
-      bitcoin_price_api_url: mostroConfig.bitcoin_price_api_url,
+        mostroConfig?.user_rates_sent_interval_seconds ?? 3600,
+      publish_relays_interval: mostroConfig?.publish_relays_interval ?? 60,
+      pow: mostroConfig?.pow ?? 0,
+      publish_mostro_info_interval:
+        mostroConfig?.publish_mostro_info_interval ?? 300,
+      bitcoin_price_api_url:
+        mostroConfig?.bitcoin_price_api_url ?? 'https://api.yadio.io',
     }
   },
 
   async ({ effects, input }) => {
-    const currentSensitiveConfig = await storeJson.read((s) => s).const(effects)
+    const configured = await storeJson.read((s) => s?.nostrKeysConfigured).once()
+    if (configured === null) {
+      await storeJson.merge(effects, { nostrKeysConfigured: false })
+    }
 
-    // Prepare only the mostro section
-    const mostroConfig = {
+    await daemon_settings.merge(effects, {
       mostro: {
         fee: input.fee,
         max_routing_fee: input.max_routing_fee,
@@ -184,18 +173,6 @@ export const mostroSettings = sdk.Action.withInput(
         publish_mostro_info_interval: input.publish_mostro_info_interval,
         bitcoin_price_api_url: input.bitcoin_price_api_url,
       },
-    }
-
-    // Ensure sensitive config exists
-    if (!currentSensitiveConfig) {
-      await storeJson.write(effects, {
-        db_password_required: false,
-        db_password: '',
-        nostrKeysConfigured: false,
-      })
-    }
-
-    // Update only the mostro section
-    await daemon_settings.merge(effects, mostroConfig)
+    })
   },
 )
