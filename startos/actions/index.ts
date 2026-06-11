@@ -1,4 +1,5 @@
 import { sdk } from '../sdk'
+import { expirationSettings } from './expirationSettings'
 import { lnSettings } from './lnSettings'
 import { nostrSettings } from './nostrSettings'
 import { mostroSettings } from './mostroSettings'
@@ -7,4 +8,5 @@ export const actions = sdk.Actions.of()
   .addAction(lnSettings)
   .addAction(nostrSettings)
   .addAction(mostroSettings)
+  .addAction(expirationSettings)
   .addAction(rpcSettings)

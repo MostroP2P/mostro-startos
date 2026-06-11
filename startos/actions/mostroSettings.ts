@@ -5,6 +5,19 @@ import { sdk } from '../sdk'
 
 const { InputSpec, Value } = sdk
 
+const DEFAULT_FIAT_CURRENCIES = ['USD', 'EUR', 'ARS', 'CUP']
+
+function parseFiatCurrencyList(value: string): string[] {
+  if (!value?.trim()) {
+    return []
+  }
+
+  return value
+    .split(',')
+    .map((currency) => currency.trim().toUpperCase())
+    .filter((currency) => currency.length > 0)
+}
+
 export const inputSpec = InputSpec.of({
   fee: Value.number({
     name: 'Mostro Fee',
@@ -113,6 +126,33 @@ export const inputSpec = InputSpec.of({
     default: 'https://api.yadio.io',
     required: true,
   }),
+  fiat_currencies_accepted: Value.text({
+    name: 'Fiat Currencies Accepted',
+    description:
+      'Comma-separated fiat currency codes (e.g., USD,EUR,ARS,CUP). Leave empty to accept all fiat currencies.',
+    placeholder: 'USD,EUR,ARS,CUP',
+    default: 'USD,EUR,ARS,CUP',
+    required: false,
+  }),
+  max_orders_per_response: Value.number({
+    name: 'Max Orders Per Response',
+    description: 'Maximum orders per response in orders action',
+    default: 10,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 100,
+  }),
+  dev_fee_percentage: Value.number({
+    name: 'Development Fee Percentage',
+    description:
+      'Percentage of Mostro fee sent to development fund (0.30 means 30% of the Mostro fee)',
+    default: 0.3,
+    required: true,
+    integer: false,
+    min: 0,
+    max: 1,
+  }),
 })
 
 export const mostroSettings = sdk.Action.withInput(
@@ -148,6 +188,11 @@ export const mostroSettings = sdk.Action.withInput(
         mostroConfig?.publish_mostro_info_interval ?? 300,
       bitcoin_price_api_url:
         mostroConfig?.bitcoin_price_api_url ?? 'https://api.yadio.io',
+      fiat_currencies_accepted: (
+        mostroConfig?.fiat_currencies_accepted ?? DEFAULT_FIAT_CURRENCIES
+      ).join(','),
+      max_orders_per_response: mostroConfig?.max_orders_per_response ?? 10,
+      dev_fee_percentage: mostroConfig?.dev_fee_percentage ?? 0.3,
     }
   },
 
@@ -172,6 +217,11 @@ export const mostroSettings = sdk.Action.withInput(
         pow: input.pow,
         publish_mostro_info_interval: input.publish_mostro_info_interval,
         bitcoin_price_api_url: input.bitcoin_price_api_url,
+        fiat_currencies_accepted: parseFiatCurrencyList(
+          input.fiat_currencies_accepted,
+        ),
+        max_orders_per_response: input.max_orders_per_response,
+        dev_fee_percentage: input.dev_fee_percentage,
       },
     })
   },

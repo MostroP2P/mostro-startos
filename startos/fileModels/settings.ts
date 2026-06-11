@@ -35,6 +35,11 @@ const mostroSchema = z.object({
   pow: natural(0),
   publish_mostro_info_interval: natural(300),
   bitcoin_price_api_url: z.string().catch('https://api.yadio.io'),
+  fiat_currencies_accepted: z
+    .array(z.string())
+    .catch(['USD', 'EUR', 'ARS', 'CUP']),
+  max_orders_per_response: natural(10),
+  dev_fee_percentage: z.number().catch(0.3),
 })
 
 const databaseSchema = z.object({
@@ -47,12 +52,20 @@ const rpcSchema = z.object({
   port: natural(50051),
 })
 
+const expirationSchema = z.object({
+  order_days: natural(30),
+  rating_days: natural(90),
+  dispute_days: natural(90),
+  fee_audit_days: natural(365),
+})
+
 const shape = z.object({
   lightning: lightningSchema.catch(() => lightningSchema.parse({})),
   nostr: nostrSchema.catch(() => nostrSchema.parse({})),
   mostro: mostroSchema.catch(() => mostroSchema.parse({})),
   database: databaseSchema.catch(() => databaseSchema.parse({})),
   rpc: rpcSchema.catch(() => rpcSchema.parse({})),
+  expiration: expirationSchema.catch(() => expirationSchema.parse({})),
 })
 
 export const daemon_settings = FileHelper.toml(

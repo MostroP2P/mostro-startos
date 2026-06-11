@@ -1,0 +1,90 @@
+import { storeJson } from '../fileModels/store.json'
+import { daemon_settings } from '../fileModels/settings'
+import { i18n } from '../i18n'
+import { sdk } from '../sdk'
+
+const { InputSpec, Value } = sdk
+
+export const inputSpec = InputSpec.of({
+  order_days: Value.number({
+    name: 'Order Event Retention',
+    description: 'Order events (kind 38383) — trades resolve quickly',
+    default: 30,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 365,
+  }),
+  rating_days: Value.number({
+    name: 'Rating Event Retention',
+    description: 'Rating events (kind 38384) — reputation history retention',
+    default: 90,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 365,
+  }),
+  dispute_days: Value.number({
+    name: 'Dispute Event Retention',
+    description:
+      'Dispute events (kind 38386) — longer retention for auditing',
+    default: 90,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 365,
+  }),
+  fee_audit_days: Value.number({
+    name: 'Fee Audit Event Retention',
+    description: 'Fee audit events (kind 8383) — annual transparency',
+    default: 365,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 1095,
+  }),
+})
+
+export const expirationSettings = sdk.Action.withInput(
+  'expiration-settings',
+
+  async () => ({
+    name: i18n('Configure Event Expiration'),
+    description: i18n('Configure how long different Nostr event types are retained'),
+    warning: null,
+    allowedStatuses: 'any',
+    group: i18n('Mostro'),
+    visibility: 'enabled',
+  }),
+
+  inputSpec,
+
+  async ({ effects }) => {
+    const expirationConfig = await daemon_settings
+      .read((s) => s?.expiration)
+      .once()
+
+    return {
+      order_days: expirationConfig?.order_days ?? 30,
+      rating_days: expirationConfig?.rating_days ?? 90,
+      dispute_days: expirationConfig?.dispute_days ?? 90,
+      fee_audit_days: expirationConfig?.fee_audit_days ?? 365,
+    }
+  },
+
+  async ({ effects, input }) => {
+    const configured = await storeJson.read((s) => s?.nostrKeysConfigured).once()
+    if (configured === null) {
+      await storeJson.merge(effects, { nostrKeysConfigured: false })
+    }
+
+    await daemon_settings.merge(effects, {
+      expiration: {
+        order_days: input.order_days,
+        rating_days: input.rating_days,
+        dispute_days: input.dispute_days,
+        fee_audit_days: input.fee_audit_days,
+      },
+    })
+  },
+)
