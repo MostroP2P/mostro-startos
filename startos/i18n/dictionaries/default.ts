@@ -13,6 +13,8 @@ const dict = {
   'Configure RPC server settings for administrative access': 9,
   'Mostro needs Nostr keys to function properly': 10,
   'RPC Version Check': 11,
+  'Configure Event Expiration': 12,
+  'Configure how long different Nostr event types are retained': 13,
 } as const
 
 /**

@@ -218,7 +218,7 @@ export const mostroSettings = sdk.Action.withInput(
         publish_mostro_info_interval: input.publish_mostro_info_interval,
         bitcoin_price_api_url: input.bitcoin_price_api_url,
         fiat_currencies_accepted: parseFiatCurrencyList(
-          input.fiat_currencies_accepted,
+          input.fiat_currencies_accepted ?? '',
         ),
         max_orders_per_response: input.max_orders_per_response,
         dev_fee_percentage: input.dev_fee_percentage,
