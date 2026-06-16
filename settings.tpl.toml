@@ -113,20 +113,20 @@ port = 50051
 # `[mostro].bitcoin_price_api_url` + `exchange_rates_update_interval_seconds`
 # + `publish_exchange_rates_to_nostr`. Uncomment the block to take control.
 #
-# [price]
+[price]
 # # Poll cadence and freshness budget.
-# update_interval_seconds = 300
-# max_price_staleness_seconds = 1800
+update_interval_seconds = 300
+max_price_staleness_seconds = 1800
 # # Discard a source whose value deviates more than this % from the median
 # # (only applies with >= 3 sources for a currency).
-# outlier_threshold_pct = 5.0
+outlier_threshold_pct = 5.0
 # # Per-provider request timeout and circuit-breaker (cooldown caps at 30 min).
-# provider_timeout_seconds = 10
-# provider_failure_threshold = 3
-# provider_failure_cooldown_seconds = 120
+provider_timeout_seconds = 10
+provider_failure_threshold = 3
+provider_failure_cooldown_seconds = 120
 # # Publish the aggregated rates to Nostr (kind 30078). Replaces the legacy
 # # `publish_exchange_rates_to_nostr`.
-# publish_to_nostr = true
+publish_to_nostr = true
 #
 # [price.providers.yadio]
 # enabled = true
@@ -158,26 +158,24 @@ port = 50051
 # # see docs/PRICE_PROVIDERS.md §7 for the full provider list and §6.6 for
 # # the `only` / `except` per-provider currency scoping rules.
 
-# Anti-abuse bond (issue #711). Opt-in, disabled by default. Uncomment to
-# require a Lightning hold-invoice bond from takers and/or makers. See
+# Anti-abuse bond (issue #711). Opt-in, disabled by default. See
 # docs/ANTI_ABUSE_BOND.md for the full phased rollout.
-#
-# [anti_abuse_bond]
-# enabled = false
-# # bond = max(amount_pct * order_amount_sats, base_amount_sats)
-# # amount_pct is a unitless fraction (0.01 = 1%); base_amount_sats is a sat floor.
-# amount_pct = 0.01
-# base_amount_sats = 1000
-# # "take" | "make" | "both"
-# apply_to = "take"
-# # Note: there is no `slash_on_lost_dispute` flag — dispute slashes are
-# # solver-directed via the `BondResolution` payload (Phase 2).
-# slash_on_waiting_timeout = false
-# # Fraction of a slashed bond that the node retains (the rest goes to the
-# # winning counterparty). Funds solver compensation for dispute work.
-# slash_node_share_pct = 0.5
-# payout_invoice_window_seconds = 300
-# payout_max_retries = 5
-# # Days the winner has to claim their share by submitting a bolt11; after
-# # this the bond closes as `forfeited` and the node retains everything.
-# payout_claim_window_days = 15
+[anti_abuse_bond]
+enabled = false
+# bond = max(amount_pct * order_amount_sats, base_amount_sats)
+# amount_pct is a unitless fraction (0.01 = 1%); base_amount_sats is a sat floor.
+amount_pct = 0.01
+base_amount_sats = 1000
+# "take" | "make" | "both"
+apply_to = "take"
+# Note: there is no `slash_on_lost_dispute` flag — dispute slashes are
+# solver-directed via the `BondResolution` payload (Phase 2).
+slash_on_waiting_timeout = false
+# Fraction of a slashed bond that the node retains (the rest goes to the
+# winning counterparty). Funds solver compensation for dispute work.
+slash_node_share_pct = 0.5
+payout_invoice_window_seconds = 300
+payout_max_retries = 5
+# Days the winner has to claim their share by submitting a bolt11; after
+# this the bond closes as `forfeited` and the node retains everything.
+payout_claim_window_days = 15

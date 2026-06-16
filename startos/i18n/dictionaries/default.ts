@@ -15,6 +15,8 @@ const dict = {
   'RPC Version Check': 11,
   'Configure Event Expiration': 12,
   'Configure how long different Nostr event types are retained': 13,
+  'Configure Anti-Abuse Bond': 14,
+  'Configure Lightning hold-invoice bonds to deter abusive takers and makers': 15,
 } as const
 
 /**

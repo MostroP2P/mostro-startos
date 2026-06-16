@@ -16,6 +16,8 @@ export default {
     11: 'Comprobación de versión RPC',
     12: 'Configurar expiración de eventos',
     13: 'Configurar cuánto tiempo se conservan los distintos tipos de eventos Nostr',
+    14: 'Configurar fianza antiabuso',
+    15: 'Configurar fianzas Lightning (hold-invoice) para disuadir a tomadores y creadores abusivos',
   },
   de_DE: {
     0: 'Starte Mostro!',
@@ -32,6 +34,8 @@ export default {
     11: 'RPC-Versionsprüfung',
     12: 'Ereignisablauf konfigurieren',
     13: 'Konfigurieren, wie lange verschiedene Nostr-Ereignistypen aufbewahrt werden',
+    14: 'Anti-Missbrauchs-Kaution konfigurieren',
+    15: 'Lightning-Hold-Invoice-Kautionen zur Abschreckung missbräuchlicher Taker und Maker konfigurieren',
   },
   pl_PL: {
     0: 'Uruchamianie Mostro!',
@@ -48,6 +52,8 @@ export default {
     11: 'Sprawdzenie wersji RPC',
     12: 'Konfiguruj wygaśnięcie zdarzeń',
     13: 'Skonfiguruj, jak długo przechowywane są różne typy zdarzeń Nostr',
+    14: 'Konfiguruj kaucję antynadużyciową',
+    15: 'Skonfiguruj kaucje Lightning (hold-invoice), aby zniechęcać nadużywających takerów i makerów',
   },
   fr_FR: {
     0: 'Démarrage de Mostro !',
@@ -64,5 +70,7 @@ export default {
     11: 'Vérification de la version RPC',
     12: 'Configurer l’expiration des événements',
     13: 'Configurer la durée de conservation des différents types d’événements Nostr',
+    14: 'Configurer la caution anti-abus',
+    15: 'Configurer les cautions Lightning (hold-invoice) pour dissuader les preneurs et créateurs abusifs',
   },
 } satisfies Record<string, LangDict>
