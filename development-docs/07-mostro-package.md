@@ -20,7 +20,7 @@ mostro LXC
     └── /lnd (ro)        ← mounted from lnd dependency volume
 ```
 
-**Daemon:** `mostrod -d /mostro -c`
+**Daemon:** `mostrod -d /mostro`
 
 **RPC interface:** port 50051 (gRPC), exposed as API interface `rpc`.
 

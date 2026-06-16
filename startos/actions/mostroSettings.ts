@@ -19,6 +19,35 @@ function parseFiatCurrencyList(value: string): string[] {
 }
 
 export const inputSpec = InputSpec.of({
+  name: Value.text({
+    name: 'Mostro Name',
+    description: 'Human-readable name for this Mostro instance (NIP-01 kind 0)',
+    placeholder: 'Mostro',
+    default: '',
+    required: false,
+  }),
+  about: Value.text({
+    name: 'About',
+    description: 'Short description of this Mostro instance',
+    placeholder:
+      'A peer-to-peer Bitcoin trading daemon over the Lightning Network',
+    default: '',
+    required: false,
+  }),
+  picture: Value.text({
+    name: 'Avatar URL',
+    description: 'URL to avatar image (square, max 128x128px recommended)',
+    placeholder: 'https://mostro.network/mostro-avatar.png',
+    default: '',
+    required: false,
+  }),
+  website: Value.text({
+    name: 'Website URL',
+    description: 'Operator website URL',
+    placeholder: 'https://mostro.network',
+    default: '',
+    required: false,
+  }),
   fee: Value.number({
     name: 'Mostro Fee',
     description: 'Mostro fee percentage',
@@ -31,8 +60,8 @@ export const inputSpec = InputSpec.of({
   max_routing_fee: Value.number({
     name: 'Max Routing Fee',
     description:
-      'Max routing fee that we want to pay to the network (0.001 = 0.1%)',
-    default: 0.001,
+      'Max routing fee that we want to pay to the network (0.002 = 0.2%)',
+    default: 0.002,
     required: true,
     integer: false,
     min: 0,
@@ -110,6 +139,16 @@ export const inputSpec = InputSpec.of({
     min: 0,
     max: 40,
   }),
+  transport: Value.select({
+    name: 'Wire Transport',
+    description:
+      'Protocol transport: gift-wrap (v1, deprecated) or nip44 (v2)',
+    default: 'gift-wrap',
+    values: {
+      'gift-wrap': 'gift-wrap (protocol v1)',
+      nip44: 'nip44 (protocol v2)',
+    },
+  }),
   publish_mostro_info_interval: Value.number({
     name: 'Publish Mostro Info Interval',
     description: 'Publish mostro info interval in seconds',
@@ -121,7 +160,8 @@ export const inputSpec = InputSpec.of({
   }),
   bitcoin_price_api_url: Value.text({
     name: 'Bitcoin Price API URL',
-    description: 'Bitcoin price API base URL',
+    description:
+      'Legacy Bitcoin price API base URL (prefer Price Provider settings when configured)',
     placeholder: 'https://api.yadio.io',
     default: 'https://api.yadio.io',
     required: true,
@@ -173,8 +213,12 @@ export const mostroSettings = sdk.Action.withInput(
     const mostroConfig = await daemon_settings.read((s) => s?.mostro).once()
 
     return {
+      name: mostroConfig?.name ?? '',
+      about: mostroConfig?.about ?? '',
+      picture: mostroConfig?.picture ?? '',
+      website: mostroConfig?.website ?? '',
       fee: mostroConfig?.fee ?? 0,
-      max_routing_fee: mostroConfig?.max_routing_fee ?? 0.001,
+      max_routing_fee: mostroConfig?.max_routing_fee ?? 0.002,
       max_order_amount: mostroConfig?.max_order_amount ?? 1_000_000,
       min_payment_amount: mostroConfig?.min_payment_amount ?? 100,
       expiration_hours: mostroConfig?.expiration_hours ?? 24,
@@ -184,6 +228,7 @@ export const mostroSettings = sdk.Action.withInput(
         mostroConfig?.user_rates_sent_interval_seconds ?? 3600,
       publish_relays_interval: mostroConfig?.publish_relays_interval ?? 60,
       pow: mostroConfig?.pow ?? 0,
+      transport: mostroConfig?.transport ?? 'gift-wrap',
       publish_mostro_info_interval:
         mostroConfig?.publish_mostro_info_interval ?? 300,
       bitcoin_price_api_url:
@@ -204,6 +249,10 @@ export const mostroSettings = sdk.Action.withInput(
 
     await daemon_settings.merge(effects, {
       mostro: {
+        name: input.name ?? '',
+        about: input.about ?? '',
+        picture: input.picture ?? '',
+        website: input.website ?? '',
         fee: input.fee,
         max_routing_fee: input.max_routing_fee,
         max_order_amount: input.max_order_amount,
@@ -215,6 +264,7 @@ export const mostroSettings = sdk.Action.withInput(
           input.user_rates_sent_interval_seconds,
         publish_relays_interval: input.publish_relays_interval,
         pow: input.pow,
+        transport: input.transport,
         publish_mostro_info_interval: input.publish_mostro_info_interval,
         bitcoin_price_api_url: input.bitcoin_price_api_url,
         fiat_currencies_accepted: parseFiatCurrencyList(

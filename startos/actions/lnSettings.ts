@@ -2,6 +2,7 @@ import { storeJson } from '../fileModels/store.json'
 import { daemon_settings } from '../fileModels/settings'
 import { i18n } from '../i18n'
 import { sdk } from '../sdk'
+import { lndCredPaths } from '../utils'
 
 const { InputSpec, Value } = sdk
 
@@ -93,9 +94,9 @@ export const lnSettings = sdk.Action.withInput(
 
     await daemon_settings.merge(effects, {
       lightning: {
-        lnd_cert_file: '/lnd/tls.cert',
-        lnd_macaroon_file: '/lnd/data/chain/bitcoin/mainnet/admin.macaroon',
-        lnd_grpc_host: 'https://lnd.startos:10009',
+        lnd_cert_file: lndCredPaths.cert,
+        lnd_macaroon_file: lndCredPaths.macaroon,
+        lnd_grpc_host: lndCredPaths.grpcHost,
         invoice_expiration_window: input.invoice_expiration_window,
         hold_invoice_cltv_delta: input.hold_invoice_cltv_delta,
         hold_invoice_expiration_window: input.hold_invoice_expiration_window,

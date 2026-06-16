@@ -43,6 +43,16 @@ export const inputSpec = InputSpec.of({
     min: 1,
     max: 1095,
   }),
+  dm_days: Value.number({
+    name: 'Direct Message Retention',
+    description:
+      'Protocol-v2 direct messages (kind 14) — trade lifetime plus dispute window',
+    default: 30,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 365,
+  }),
 })
 
 export const expirationSettings = sdk.Action.withInput(
@@ -69,6 +79,7 @@ export const expirationSettings = sdk.Action.withInput(
       rating_days: expirationConfig?.rating_days ?? 90,
       dispute_days: expirationConfig?.dispute_days ?? 90,
       fee_audit_days: expirationConfig?.fee_audit_days ?? 365,
+      dm_days: expirationConfig?.dm_days ?? 30,
     }
   },
 
@@ -84,6 +95,7 @@ export const expirationSettings = sdk.Action.withInput(
         rating_days: input.rating_days,
         dispute_days: input.dispute_days,
         fee_audit_days: input.fee_audit_days,
+        dm_days: input.dm_days,
       },
     })
   },

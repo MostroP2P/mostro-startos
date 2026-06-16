@@ -32,8 +32,8 @@ Mostro requires a Lightning node to function. Configure your Lightning connectio
 
 **Default paths** (if using StartOS LND):
 ```
-Certificate: /lnd/tls.cert
-Macaroon: /lnd/data/chain/bitcoin/mainnet/admin.macaroon
+Certificate: /mostro/lnd-creds/tls.cert
+Macaroon: /mostro/lnd-creds/admin.macaroon
 Host: https://lnd.startos:10009
 ```
 
@@ -57,7 +57,7 @@ Configure your Mostro trading parameters:
 
 ### Database & RPC
 
-- **Database**: Uses SQLite by default (`sqlite://mostro.db`)
+- **Database Connectivity**: Verifies SQLite database access (`sqlite://mostro.db` in `/mostro`)
 - **RPC Interface**: Enable for programmatic access (optional)
 - **Proof of Work**: Configure anti-spam difficulty
 

@@ -141,7 +141,7 @@ mostro LXC
     └── /lnd (ro)        ← mounted from lnd dependency volume
 ```
 
-- **Daemon command:** `mostrod -d /mostro -c`
+- **Daemon command:** `mostrod -d /mostro`
 - **RPC interface:** gRPC on port 50051 (`startos/interfaces.ts`)
 - **Settings file:** `/mostro/settings.toml` (typed by `startos/fileModels/settings.ts`)
 - **LND paths (defaults):** `/lnd/tls.cert`, `/lnd/data/chain/bitcoin/mainnet/admin.macaroon`, `https://lnd.startos:10009`
@@ -180,7 +180,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
   return sdk.Daemons.of(effects)
     .addDaemon('primary', {
       subcontainer: await sdk.SubContainer.of(effects, { imageId: 'mostro' }, mounts, 'mostro-sub'),
-      exec: { command: ['mostrod', '-d', '/mostro', '-c'] },
+      exec: { command: ['mostrod', '-d', '/mostro'] },
       ready: { display: null, fn: () => ({ result: 'success', message: null }) },
       requires: [],
     })

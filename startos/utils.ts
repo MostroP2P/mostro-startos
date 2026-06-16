@@ -133,3 +133,11 @@ export function validateRelayList(relaysString: string): string[] {
     .filter((relay) => relay.length > 0)
   return relays.filter((relay) => isValidRelayUrl(relay))
 }
+
+/** Writable copies of LND TLS cert + admin macaroon (source mount is read-only). */
+export const lndCredPaths = {
+  dir: '/mostro/lnd-creds',
+  cert: '/mostro/lnd-creds/tls.cert',
+  macaroon: '/mostro/lnd-creds/admin.macaroon',
+  grpcHost: 'https://lnd.startos:10009',
+} as const

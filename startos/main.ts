@@ -2,8 +2,9 @@ import { i18n } from './i18n'
 import { sdk } from './sdk'
 import { manifest } from './manifest'
 import { daemon_settings } from './fileModels/settings'
+import { lndCredPaths } from './utils'
 
-const dockerTag = manifest.images.mostro.source.dockerTag.split(':').pop() ?? 'v0.17.4'
+const dockerTag = manifest.images.mostro.source.dockerTag.split(':').pop() ?? 'v0.17.5'
 const expectedVersion = dockerTag.replace(/^v/, '')
 
 export const main = sdk.setupMain(async ({ effects }) => {
@@ -11,6 +12,13 @@ export const main = sdk.setupMain(async ({ effects }) => {
 
   const depResult = await sdk.checkDependencies(effects)
   depResult.throwIfNotSatisfied()
+
+  await daemon_settings.merge(effects, {
+    lightning: {
+      lnd_cert_file: lndCredPaths.cert,
+      lnd_macaroon_file: lndCredPaths.macaroon,
+    },
+  })
 
   let mainMount = sdk.Mounts.of().mountVolume({
     volumeId: 'main',
@@ -34,14 +42,30 @@ export const main = sdk.setupMain(async ({ effects }) => {
     'mostro-sub',
   )
 
-  const mostroCommand: [string, ...string[]] = [
-    'mostrod',
-    '-d',
-    '/mostro',
-    '-c',
-  ]
+  const mostroCommand: [string, ...string[]] = ['mostrod', '-d', '/mostro']
 
   return sdk.Daemons.of(effects)
+    .addOneshot('prepare-runtime', {
+      subcontainer: mostroSub,
+      exec: {
+        command: [
+          'sh',
+          '-c',
+          [
+            'set -e',
+            `mkdir -p ${lndCredPaths.dir}`,
+            'cp -f /lnd/tls.cert ' + lndCredPaths.cert,
+            'macaroon="$(find /lnd -name admin.macaroon -print -quit)"',
+            'if [ -z "$macaroon" ]; then echo "admin.macaroon not found under /lnd" >&2; exit 1; fi',
+            'cp -f "$macaroon" ' + lndCredPaths.macaroon,
+            'chown -R mostrouser:mostrouser /mostro',
+            `chmod 600 ${lndCredPaths.cert} ${lndCredPaths.macaroon}`,
+          ].join('\n'),
+        ],
+        user: 'root',
+      },
+      requires: [],
+    })
     .addDaemon('primary', {
       subcontainer: mostroSub,
       exec: {
@@ -51,7 +75,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
         display: null,
         fn: () => ({ result: 'success', message: null }),
       },
-      requires: [],
+      requires: ['prepare-runtime'],
     })
     .addHealthCheck('rpc-version-check', {
       ready: {

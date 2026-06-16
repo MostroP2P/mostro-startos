@@ -31,6 +31,16 @@ export const inputSpec = InputSpec.of({
     min: 1024,
     max: 65535,
   }),
+  rate_limiter_stale_duration: Value.number({
+    name: 'Rate Limiter Stale Duration',
+    description:
+      'Seconds after which inactive rate-limiter entries are evicted',
+    default: 3600,
+    required: true,
+    integer: true,
+    min: 60,
+    max: 86400,
+  }),
 })
 
 export const rpcSettings = sdk.Action.withInput(
@@ -54,6 +64,8 @@ export const rpcSettings = sdk.Action.withInput(
       rpc_enabled: rpcConfig?.enabled ? ('true' as const) : ('false' as const),
       rpc_listen_address: rpcConfig?.listen_address ?? '127.0.0.1',
       rpc_port: rpcConfig?.port ?? 50051,
+      rate_limiter_stale_duration:
+        rpcConfig?.rate_limiter_stale_duration ?? 3600,
     }
   },
 
@@ -68,6 +80,7 @@ export const rpcSettings = sdk.Action.withInput(
         enabled: input.rpc_enabled === 'true',
         listen_address: input.rpc_listen_address,
         port: input.rpc_port,
+        rate_limiter_stale_duration: input.rate_limiter_stale_duration,
       },
     })
   },

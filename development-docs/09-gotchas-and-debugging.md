@@ -25,8 +25,10 @@
 | Issue | Check |
 |-------|-------|
 | Won't start | LND installed? `checkDependencies` satisfied? |
+| `DbAccessError` permission denied | `/mostro` owned by root; fixed by `prepare-runtime` oneshot in `main.ts` |
+| Wrong DB path | Use `sqlite://mostro.db` (not `sqlite://mostro/mostro.db`) in `[database]` |
+| LND macaroon read error | LND creds are root-only on read-only `/lnd` mount; copied to `/mostro/lnd-creds/` at start |
 | RPC health fail | RPC enabled in settings? grpcurl in image? Version string match? |
-| LND macaroon errors | `/lnd` mount readonly? Paths in settings.toml correct? |
 | Nostr not publishing | Relays configured? `setupNostr` init ran? |
 
 ## Debugging workflow
