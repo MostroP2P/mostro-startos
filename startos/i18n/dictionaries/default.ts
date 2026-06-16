@@ -17,6 +17,10 @@ const dict = {
   'Configure how long different Nostr event types are retained': 13,
   'Configure Anti-Abuse Bond': 14,
   'Configure Lightning hold-invoice bonds to deter abusive takers and makers': 15,
+  'View settings.toml': 16,
+  'Show the current Mostro configuration file (Nostr secret redacted)': 17,
+  'Current configuration on disk:': 18,
+  'Read-only. Re-run this action after changing settings to refresh.': 19,
 } as const
 
 /**

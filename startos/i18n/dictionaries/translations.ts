@@ -18,6 +18,10 @@ export default {
     13: 'Configurar cuánto tiempo se conservan los distintos tipos de eventos Nostr',
     14: 'Configurar fianza antiabuso',
     15: 'Configurar fianzas Lightning (hold-invoice) para disuadir a tomadores y creadores abusivos',
+    16: 'Ver settings.toml',
+    17: 'Mostrar el archivo de configuración actual de Mostro (secreto Nostr oculto)',
+    18: 'Configuración actual en disco:',
+    19: 'Solo lectura. Vuelve a ejecutar esta acción tras cambiar la configuración.',
   },
   de_DE: {
     0: 'Starte Mostro!',
@@ -36,6 +40,10 @@ export default {
     13: 'Konfigurieren, wie lange verschiedene Nostr-Ereignistypen aufbewahrt werden',
     14: 'Anti-Missbrauchs-Kaution konfigurieren',
     15: 'Lightning-Hold-Invoice-Kautionen zur Abschreckung missbräuchlicher Taker und Maker konfigurieren',
+    16: 'settings.toml anzeigen',
+    17: 'Aktuelle Mostro-Konfigurationsdatei anzeigen (Nostr-Geheimnis ausgeblendet)',
+    18: 'Aktuelle Konfiguration auf dem Datenträger:',
+    19: 'Nur Lesen. Aktion nach Einstellungsänderungen erneut ausführen.',
   },
   pl_PL: {
     0: 'Uruchamianie Mostro!',
@@ -54,6 +62,10 @@ export default {
     13: 'Skonfiguruj, jak długo przechowywane są różne typy zdarzeń Nostr',
     14: 'Konfiguruj kaucję antynadużyciową',
     15: 'Skonfiguruj kaucje Lightning (hold-invoice), aby zniechęcać nadużywających takerów i makerów',
+    16: 'Wyświetl settings.toml',
+    17: 'Pokaż bieżący plik konfiguracyjny Mostro (tajny klucz Nostr ukryty)',
+    18: 'Bieżąca konfiguracja na dysku:',
+    19: 'Tylko do odczytu. Uruchom ponownie po zmianie ustawień.',
   },
   fr_FR: {
     0: 'Démarrage de Mostro !',
@@ -72,5 +84,9 @@ export default {
     13: 'Configurer la durée de conservation des différents types d’événements Nostr',
     14: 'Configurer la caution anti-abus',
     15: 'Configurer les cautions Lightning (hold-invoice) pour dissuader les preneurs et créateurs abusifs',
+    16: 'Afficher settings.toml',
+    17: 'Afficher le fichier de configuration Mostro actuel (secret Nostr masqué)',
+    18: 'Configuration actuelle sur le disque :',
+    19: 'Lecture seule. Relancez cette action après avoir modifié les paramètres.',
   },
 } satisfies Record<string, LangDict>

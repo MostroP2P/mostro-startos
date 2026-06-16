@@ -5,6 +5,7 @@ import { lnSettings } from './lnSettings'
 import { nostrSettings } from './nostrSettings'
 import { mostroSettings } from './mostroSettings'
 import { rpcSettings } from './rpcSettings'
+import { viewSettings } from './viewSettings'
 export const actions = sdk.Actions.of()
   .addAction(lnSettings)
   .addAction(nostrSettings)
@@ -12,3 +13,4 @@ export const actions = sdk.Actions.of()
   .addAction(expirationSettings)
   .addAction(antiAbuseBondSettings)
   .addAction(rpcSettings)
+  .addAction(viewSettings)
