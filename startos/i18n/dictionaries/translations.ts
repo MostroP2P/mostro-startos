@@ -178,6 +178,8 @@ export default {
     199: 'Configurar fuentes múltiples de precio de Bitcoin y fiat',
     200: 'El Toque requiere un token cuando está habilitado.',
     201: 'Habilita precios Nostr solo después de añadir al menos una clave pública de nodo de confianza.',
+    202: 'Tiempo de pago de la fianza del maker',
+    203: 'Segundos que tiene un maker para pagar la fianza del maker (apply_to = make o both). Pasado ese tiempo, la orden no publicada expira',
   },
   de_DE: {
     0: 'Starte Mostro!',
@@ -356,6 +358,8 @@ export default {
     199: 'Mehrquellen-Bitcoin- und Fiat-Preisfeeds konfigurieren',
     200: 'El Toque erfordert ein Token, wenn es aktiviert ist.',
     201: 'Nostr-Preise erst aktivieren, nachdem mindestens ein vertrauenswürdiger Knoten-Pubkey hinzugefügt wurde.',
+    202: 'Maker-Bond-Zahlungs-Timeout',
+    203: 'Sekunden, die ein Maker hat, um den Maker-Bond zu zahlen (apply_to = make oder both). Danach läuft die unveröffentlichte Order ab',
   },
   pl_PL: {
     0: 'Uruchamianie Mostro!',
@@ -534,6 +538,8 @@ export default {
     199: 'Skonfiguruj wieloźródłowe kanały cen Bitcoina i fiat',
     200: 'El Toque wymaga tokenu, gdy jest włączony.',
     201: 'Włącz ceny Nostr dopiero po dodaniu co najmniej jednego klucza publicznego zaufanego węzła.',
+    202: 'Timeout płatności kaucji maker',
+    203: 'Sekundy, jakie maker ma na opłacenie kaucji maker (apply_to = make lub both). Po tym czasie nieopublikowane zlecenie wygasa',
   },
   fr_FR: {
     0: 'Démarrage de Mostro !',
@@ -712,5 +718,7 @@ export default {
     199: 'Configurer des flux de prix Bitcoin et fiat multi-sources',
     200: 'El Toque nécessite un jeton lorsqu’il est activé.',
     201: 'N’activez les prix Nostr qu’après avoir ajouté au moins une clé publique de nœud de confiance.',
+    202: 'Délai de paiement de la caution maker',
+    203: 'Secondes dont dispose un maker pour payer la caution maker (apply_to = make ou both). Passé ce délai, l’ordre non publié expire',
   },
 } satisfies Record<string, LangDict>

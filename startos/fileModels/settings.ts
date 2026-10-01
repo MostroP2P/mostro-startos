@@ -49,7 +49,8 @@ const mostroSchema = z.object({
   user_rates_sent_interval_seconds: natural(3600),
   publish_relays_interval: natural(60),
   pow: natural(0),
-  // Protocol v1 gift-wrap is no longer offered. Pin nip44 (protocol v2).
+  // Protocol v1 gift-wrap was removed in Mostro 0.19; a leftover
+  // "gift-wrap" value refuses to start. Pin nip44 (protocol v2).
   transport: z.literal('nip44').catch('nip44'),
   publish_mostro_info_interval: natural(300),
   bitcoin_price_api_url: z.string().catch('https://api.yadio.io'),
@@ -161,6 +162,13 @@ const antiAbuseBondSchema = z.object({
   payout_invoice_window_seconds: natural(300),
   payout_max_retries: natural(5),
   payout_claim_window_days: natural(15),
+  // Seconds a maker has to pay the maker bond (apply_to = make | both).
+  // Upstream rejects 0; default matches settings.tpl.toml.
+  maker_bond_payment_timeout_seconds: z
+    .number()
+    .int()
+    .positive()
+    .catch(900),
 })
 
 const shape = z.object({
