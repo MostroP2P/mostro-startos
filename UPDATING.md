@@ -27,9 +27,3 @@ Mostro is packaged as a pre-built Docker image from Docker Hub.
 3. If the bump requires a migration, rename the old `current.ts` to `vX.Y.Z_N.ts`, add it to `other[]` in `startos/versions/index.ts`, then write the new `current.ts`
 4. Update release notes in `current.ts` (all locales)
 5. Build and test: `make clean x86 install`
-
-## Git tag
-
-Format: `v{upstream}_{downstream}` — e.g. `0.19.0:0` → `v0.19.0_0`
-
-Git tags for registry releases are created by Start9-Community CI (`tagAndRelease.yml`) after merge to community `master`. Do not create or push these tags from MostroP2P by hand.
