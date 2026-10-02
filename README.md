@@ -81,7 +81,7 @@ Five settings are **written by the package rather than the user**:
 - **LND's gRPC address**, resolved at start over the internal bridge. **When LND has not published its binding it is left unwritten** rather than defaulted, so the daemon fails its connection visibly; the reactive read heals it with one restart when the binding appears.
 - **The admin RPC**, fixed to loopback. It is Mostro's unauthenticated local admin channel, and pinning it is what keeps it off the network.
 - **`allow_node_change`**, pinned false. Turning it on with open escrow is unsafe; it is not a user toggle.
-- **`transport`**, pinned to `nip44`. Protocol v1 gift-wrap is not offered.
+- **`transport`**, pinned to `nip44`. Protocol v1 gift-wrap was removed in Mostro 0.19; a leftover `"gift-wrap"` value refuses to start.
 
 The settings file is read reactively, so any action that changes it restarts the daemon.
 
@@ -157,9 +157,10 @@ The invoice parameters: expiry windows, the hold-invoice CLTV delta, the payment
 
 The instance's public profile — name, description, picture, website — plus its economics: the fee it charges, the routing-fee ceiling, order size limits, order and rating publication intervals, proof-of-work difficulty, the legacy price API URL, the accepted fiat currencies, and the developer fee percentage.
 
-- **`transport` is pinned to nip44** (protocol v2) and is not on this form. Gift-wrap is not available.
+- **`transport` is pinned to nip44** (protocol v2) and is not on this form. Protocol v1 gift-wrap was removed upstream.
 - **Fiat currencies default to empty** (accept all). A comma-separated list still restricts which codes this instance will take.
 - **`bitcoin_price_api_url` is upstream's deprecated single-source URL** and is ignored whenever a `[price]` block is present, which on this package is always; set the Yadio URL in **Configure Price Providers** instead.
+- **`serbero_pubkey` is optional.** If you run a [Serbero](https://github.com/MostroP2P/serbero) dispute assistant, put its npub or hex here; leave empty otherwise. Mostro registers it as a read-only solver at boot and announces it in the info event.
 
 #### Expiration Settings
 
@@ -167,9 +168,10 @@ How long orders, ratings, disputes, fee audit records, and direct messages are r
 
 #### Anti-Abuse Bond Settings
 
-The optional bond takers or makers must post, its size, whether it is slashed on a timeout, and how the payout is handled.
+The optional bond takers or makers must post, its size, whether it is slashed on a timeout, how the payout is handled, and how long a maker has to pay the maker bond before the unpublished order expires.
 
 - **Off by default.** Turning it on changes what counterparties must do to trade with you.
+- **Maker bond payment timeout** defaults to 900 seconds and applies when `apply_to` is `make` or `both`.
 
 #### Price Provider Settings
 

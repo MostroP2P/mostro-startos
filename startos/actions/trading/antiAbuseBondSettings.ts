@@ -1,4 +1,7 @@
-import { daemon_settings } from '../../fileModels/settings'
+import {
+  daemon_settings,
+  defaultMakerBondPaymentTimeoutSeconds,
+} from '../../fileModels/settings'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
 
@@ -97,6 +100,17 @@ export const inputSpec = InputSpec.of({
     min: 1,
     max: 365,
   }),
+  maker_bond_payment_timeout_seconds: Value.number({
+    name: i18n('Maker Bond Payment Timeout'),
+    description: i18n(
+      'Seconds a maker has to pay the maker bond (apply_to = make or both). Past it the unpublished order expires',
+    ),
+    default: defaultMakerBondPaymentTimeoutSeconds,
+    required: true,
+    integer: true,
+    min: 1,
+    max: 86400,
+  }),
 })
 
 export const antiAbuseBondSettings = sdk.Action.withInput(
@@ -130,6 +144,9 @@ export const antiAbuseBondSettings = sdk.Action.withInput(
       payout_invoice_window_seconds: bond?.payout_invoice_window_seconds ?? 300,
       payout_max_retries: bond?.payout_max_retries ?? 5,
       payout_claim_window_days: bond?.payout_claim_window_days ?? 15,
+      maker_bond_payment_timeout_seconds:
+        bond?.maker_bond_payment_timeout_seconds ??
+        defaultMakerBondPaymentTimeoutSeconds,
     }
   },
 
@@ -145,6 +162,8 @@ export const antiAbuseBondSettings = sdk.Action.withInput(
         payout_invoice_window_seconds: input.payout_invoice_window_seconds,
         payout_max_retries: input.payout_max_retries,
         payout_claim_window_days: input.payout_claim_window_days,
+        maker_bond_payment_timeout_seconds:
+          input.maker_bond_payment_timeout_seconds,
       },
     })
   },
