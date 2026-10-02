@@ -8,6 +8,8 @@ export const DEFAULT_NOSTR_RELAYS = [
   'wss://relay.shadowbip.com',
 ]
 
+export const defaultMakerBondPaymentTimeoutSeconds = 900
+
 const natural = (defaultVal: number) =>
   z.number().int().nonnegative().catch(defaultVal)
 
@@ -17,7 +19,8 @@ const lightningSchema = z.object({
   lnd_grpc_host: z.string().optional().catch(undefined),
   invoice_expiration_window: natural(3600),
   hold_invoice_cltv_delta: natural(144),
-  hold_invoice_expiration_window: natural(300),
+  // Mostro 0.19 rejects 0; repair it so a stale config cannot block startup.
+  hold_invoice_expiration_window: z.number().int().positive().catch(300),
   payment_attempts: natural(3),
   payment_retries_interval: natural(60),
   max_final_cltv_expiry_delta: natural(144),
@@ -49,7 +52,8 @@ const mostroSchema = z.object({
   user_rates_sent_interval_seconds: natural(3600),
   publish_relays_interval: natural(60),
   pow: natural(0),
-  // Protocol v1 gift-wrap is no longer offered. Pin nip44 (protocol v2).
+  // Protocol v1 gift-wrap was removed in Mostro 0.19; a leftover
+  // "gift-wrap" value refuses to start. Pin nip44 (protocol v2).
   transport: z.literal('nip44').catch('nip44'),
   publish_mostro_info_interval: natural(300),
   bitcoin_price_api_url: z.string().catch('https://api.yadio.io'),
@@ -57,6 +61,8 @@ const mostroSchema = z.object({
   fiat_currencies_accepted: z.array(z.string()).catch([]),
   max_orders_per_response: natural(10),
   dev_fee_percentage: z.number().catch(0.3),
+  // Optional Serbero dispute-assistant pubkey (npub or hex). Blank = none.
+  serbero_pubkey: z.string().catch(''),
 })
 
 const databaseSchema = z.object({
@@ -161,6 +167,13 @@ const antiAbuseBondSchema = z.object({
   payout_invoice_window_seconds: natural(300),
   payout_max_retries: natural(5),
   payout_claim_window_days: natural(15),
+  // Seconds a maker has to pay the maker bond (apply_to = make | both).
+  // Upstream rejects 0; default matches settings.tpl.toml.
+  maker_bond_payment_timeout_seconds: z
+    .number()
+    .int()
+    .positive()
+    .catch(defaultMakerBondPaymentTimeoutSeconds),
 })
 
 const shape = z.object({

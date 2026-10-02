@@ -35,8 +35,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
       ...(lndBridge ? { lnd_grpc_host: `https://${lndBridge}` } : {}),
       allow_node_change: false,
     },
-    // Protocol v1 gift-wrap is gone; pin nip44 so a leftover setting cannot
-    // put the daemon back on v1.
+    // Protocol v1 gift-wrap was removed in 0.19; pin nip44 so a leftover
+    // gift-wrap value cannot refuse startup.
     mostro: { transport: 'nip44' },
     // Keep the admin RPC fixed on at localhost — it's Mostro's local-only admin
     // channel, never network-exposed.
