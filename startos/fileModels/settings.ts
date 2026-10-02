@@ -8,6 +8,8 @@ export const DEFAULT_NOSTR_RELAYS = [
   'wss://relay.shadowbip.com',
 ]
 
+export const defaultMakerBondPaymentTimeoutSeconds = 900
+
 const natural = (defaultVal: number) =>
   z.number().int().nonnegative().catch(defaultVal)
 
@@ -17,7 +19,8 @@ const lightningSchema = z.object({
   lnd_grpc_host: z.string().optional().catch(undefined),
   invoice_expiration_window: natural(3600),
   hold_invoice_cltv_delta: natural(144),
-  hold_invoice_expiration_window: natural(300),
+  // Mostro 0.19 rejects 0; repair it so a stale config cannot block startup.
+  hold_invoice_expiration_window: z.number().int().positive().catch(300),
   payment_attempts: natural(3),
   payment_retries_interval: natural(60),
   max_final_cltv_expiry_delta: natural(144),
@@ -170,7 +173,7 @@ const antiAbuseBondSchema = z.object({
     .number()
     .int()
     .positive()
-    .catch(900),
+    .catch(defaultMakerBondPaymentTimeoutSeconds),
 })
 
 const shape = z.object({

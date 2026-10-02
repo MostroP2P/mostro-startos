@@ -1,4 +1,7 @@
-import { daemon_settings } from '../../fileModels/settings'
+import {
+  daemon_settings,
+  defaultMakerBondPaymentTimeoutSeconds,
+} from '../../fileModels/settings'
 import { i18n } from '../../i18n'
 import { sdk } from '../../sdk'
 
@@ -102,7 +105,7 @@ export const inputSpec = InputSpec.of({
     description: i18n(
       'Seconds a maker has to pay the maker bond (apply_to = make or both). Past it the unpublished order expires',
     ),
-    default: 900,
+    default: defaultMakerBondPaymentTimeoutSeconds,
     required: true,
     integer: true,
     min: 1,
@@ -142,7 +145,8 @@ export const antiAbuseBondSettings = sdk.Action.withInput(
       payout_max_retries: bond?.payout_max_retries ?? 5,
       payout_claim_window_days: bond?.payout_claim_window_days ?? 15,
       maker_bond_payment_timeout_seconds:
-        bond?.maker_bond_payment_timeout_seconds ?? 900,
+        bond?.maker_bond_payment_timeout_seconds ??
+        defaultMakerBondPaymentTimeoutSeconds,
     }
   },
 
