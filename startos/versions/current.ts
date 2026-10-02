@@ -2,98 +2,104 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 import { daemon_settings } from '../fileModels/settings'
 
 export const current = VersionInfo.of({
-  version: '0.18.7:0',
+  version: '0.19.1:0',
   releaseNotes: {
-    en_US: `Updated Mostro to 0.18.7.
+    en_US: `Updated Mostro to 0.19.1 (includes 0.19.0).
 
 **Features**
-- Caps in-flight payouts node-wide and per destination, and bounds the total timelock of a payout route — these are now on **Configure Lightning Node Settings**
-- Operators can cancel pre-trade orders through the local admin RPC
+- Optional **Serbero** dispute assistant: set its pubkey under **Configure Mostro Settings**; Mostro registers it as a read-only solver and announces it in the info event
+- Protocol v1 (gift-wrap) is removed; the daemon speaks nip44 only. A leftover \`transport = "gift-wrap"\` refuses to start — this package keeps pinning nip44
+- Makers can cancel before paying the bond; **Configure Anti-Abuse Bond** includes the maker-bond payment timeout (default 900s)
+- Disputes close as cooperatively-canceled on a cooperative cancel, and as released when the seller releases
 
 **Fixes**
-- Info events advertised the hold window correctly; user payout invoices are capped at 144 blocks; several drain-counter and admin-cancel hold-invoice fixes
+- Hold invoices the seller just paid are never canceled; bond winners can claim shares below the minimum; bond CancelLightning lookups work; dispute writes are atomic
+- Trade-key, taker-bond expiry, maker-bond deadline, amt/fa tag, price-staleness, and publish/solver notification fixes from 0.19.0
 
 **StartOS**
-- Wire transport is pinned to nip44 (protocol v2); gift-wrap is not available
-- \`allow_node_change\` stays off (disaster recovery only) and is not a settings toggle
-- New installs default to three relays (\`wss://relay.mostro.network\`, \`wss://mostro-p2p.tech\`, \`wss://relay.shadowbip.com\`) and accept all fiat currencies
-- **Configure Price Providers** covers the multi-source \`[price]\` block (El Toque and Nostr prices stay off until you add a token or trusted node)
+- Image pin \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
+- \`serbero_pubkey\` and \`maker_bond_payment_timeout_seconds\` are filled on upgrade and exposed in Trading actions
 - Cashu escrow is not packaged; this service still requires LND
 
-Full notes: https://github.com/MostroP2P/mostro/releases/tag/v0.18.7`,
-    es_ES: `Mostro actualizado a 0.18.7.
+Full notes: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
+    es_ES: `Mostro actualizado a 0.19.1 (incluye 0.19.0).
 
 **Novedades**
-- Limita los pagos en vuelo en todo el nodo y por destino, y acota el timelock total de una ruta de pago — ahora están en **Configurar nodo Lightning**
-- Los operadores pueden cancelar órdenes pre-trade por el RPC de administración local
+- Asistente de disputas **Serbero** opcional: configura su clave en **Configurar ajustes de Mostro**; Mostro lo registra como solver de solo lectura y lo anuncia en el evento de información
+- El protocolo v1 (gift-wrap) se elimina; el daemon solo habla nip44. Un \`transport = "gift-wrap"\` residual impide el arranque — este paquete sigue fijando nip44
+- Los makers pueden cancelar antes de pagar la fianza; **Configurar fianza antiabuso** incluye el tiempo de pago de la fianza del maker (900s por defecto)
+- Las disputas se cierran como cancelación cooperativa en una cancelación cooperativa, y como liberadas cuando el vendedor libera
 
 **Correcciones**
-- Los eventos de información anuncian bien la ventana de hold; las facturas de pago del usuario se limitan a 144 bloques; varios arreglos de contadores de drenaje y de cancelación administrativa de hold-invoices
+- No se cancelan hold-invoices que el vendedor acaba de pagar; los ganadores de fianza pueden reclamar cuotas por debajo del mínimo; lookups CancelLightning de fianza; escrituras de disputa atómicas
+- Correcciones de 0.19.0 sobre claves de trade, expiración de fianza del taker, plazo del maker, etiquetas amt/fa, caducidad de precios y notificaciones
 
 **StartOS**
-- El transporte está fijado a nip44 (protocolo v2); gift-wrap no está disponible
-- \`allow_node_change\` permanece desactivado (solo recuperación de desastres) y no es un ajuste de la interfaz
-- Las instalaciones nuevas usan tres relays (\`wss://relay.mostro.network\`, \`wss://mostro-p2p.tech\`, \`wss://relay.shadowbip.com\`) y aceptan todas las monedas fiat
-- **Configurar proveedores de precio** cubre el bloque multi-fuente \`[price]\` (El Toque y los precios Nostr siguen apagados hasta que añadas un token o un nodo de confianza)
+- Imagen \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
+- \`serbero_pubkey\` y \`maker_bond_payment_timeout_seconds\` se rellenan al actualizar y están en las acciones de Trading
 - El escrow Cashu no está empaquetado; este servicio sigue requiriendo LND
 
-Notas completas: https://github.com/MostroP2P/mostro/releases/tag/v0.18.7`,
-    de_DE: `Mostro auf 0.18.7 aktualisiert.
+Notas completas: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
+    de_DE: `Mostro auf 0.19.1 aktualisiert (inkl. 0.19.0).
 
 **Funktionen**
-- Begrenzt laufende Auszahlungen knotenweit und pro Ziel und begrenzt den gesamten Timelock einer Auszahlungsroute — jetzt unter **Lightning-Knoten konfigurieren**
-- Betreiber können Pre-Trade-Orders über die lokale Admin-RPC stornieren
+- Optionaler **Serbero**-Streitassistent: Pubkey unter **Mostro-Einstellungen konfigurieren**; Mostro registriert ihn als schreibgeschützten Solver und kündigt ihn im Info-Event an
+- Protokoll v1 (gift-wrap) ist entfernt; der Daemon spricht nur nip44. Ein übrig gebliebenes \`transport = "gift-wrap"\` verhindert den Start — dieses Paket pinnt weiterhin nip44
+- Maker können vor der Bond-Zahlung stornieren; **Anti-Abuse-Bond konfigurieren** enthält das Maker-Bond-Zahlungs-Timeout (Standard 900s)
+- Disputes schließen als kooperativ storniert bei kooperativer Stornierung und als freigegeben, wenn der Verkäufer freigibt
 
 **Korrekturen**
-- Info-Events melden das Hold-Fenster korrekt; Nutzer-Auszahlungsrechnungen sind auf 144 Blöcke begrenzt; mehrere Drain-Zähler- und Admin-Cancel-Hold-Invoice-Korrekturen
+- Hold-Invoices, die der Verkäufer gerade bezahlt hat, werden nicht storniert; Bond-Gewinner können Anteile unter dem Minimum beanspruchen; Bond-CancelLightning-Lookups; atomare Dispute-Schreibvorgänge
+- Trade-Key-, Taker-Bond-, Maker-Frist-, amt/fa-, Preis-Staleness- und Publish/Solver-Korrekturen aus 0.19.0
 
 **StartOS**
-- Der Drahttransport ist auf nip44 (Protokoll v2) festgesetzt; gift-wrap ist nicht verfügbar
-- \`allow_node_change\` bleibt aus (nur Disaster Recovery) und ist kein Einstellungs-Schalter
-- Neue Installationen nutzen drei Relays (\`wss://relay.mostro.network\`, \`wss://mostro-p2p.tech\`, \`wss://relay.shadowbip.com\`) und akzeptieren alle Fiat-Währungen
-- **Preisanbieter konfigurieren** deckt den Multi-Source-\`[price]\`-Block ab (El Toque und Nostr-Preise bleiben aus, bis du ein Token oder einen vertrauenswürdigen Knoten hinzufügst)
+- Image-Pin \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
+- \`serbero_pubkey\` und \`maker_bond_payment_timeout_seconds\` werden beim Upgrade gesetzt und in Trading-Aktionen angeboten
 - Cashu-Escrow ist nicht paketiert; dieser Dienst benötigt weiterhin LND
 
-Vollständige Hinweise: https://github.com/MostroP2P/mostro/releases/tag/v0.18.7`,
-    pl_PL: `Zaktualizowano Mostro do 0.18.7.
+Vollständige Hinweise: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
+    pl_PL: `Zaktualizowano Mostro do 0.19.1 (zawiera 0.19.0).
 
 **Funkcje**
-- Limituje płatności w locie w całym węźle i per cel oraz ogranicza całkowity timelock trasy wypłaty — teraz w **Konfiguruj węzeł Lightning**
-- Operatorzy mogą anulować zlecenia przed transzą przez lokalne RPC administracyjne
+- Opcjonalny asystent sporów **Serbero**: ustaw klucz w **Konfiguruj ustawienia Mostro**; Mostro rejestruje go jako solver tylko do odczytu i ogłasza w zdarzeniu info
+- Protokół v1 (gift-wrap) został usunięty; demon mówi tylko nip44. Pozostałe \`transport = "gift-wrap"\` blokuje start — ten pakiet nadal pinuje nip44
+- Makerzy mogą anulować przed opłaceniem kaucji; **Konfiguruj kaucję antynadużyciową** zawiera timeout płatności kaucji maker (domyślnie 900s)
+- Spory zamykane są jako kooperacyjnie anulowane przy kooperacyjnym anulowaniu oraz jako released, gdy sprzedawca zwalnia
 
 **Poprawki**
-- Zdarzenia info poprawnie ogłaszają okno hold; faktury wypłat użytkownika są ograniczone do 144 bloków; kilka poprawek liczników drenowania i administracyjnego anulowania hold-invoice
+- Hold-invoice właśnie opłacone przez sprzedawcę nie są anulowane; zwycięzcy kaucji mogą wypłacać udziały poniżej minimum; lookupi CancelLightning kaucji; atomowe zapisy sporów
+- Poprawki 0.19.0: klucze trade, wygaśnięcie kaucji takera, termin makera, tagi amt/fa, staleness cen, publish/solver
 
 **StartOS**
-- Transport jest przypięty do nip44 (protokół v2); gift-wrap jest niedostępny
-- \`allow_node_change\` pozostaje wyłączone (tylko odzyskiwanie po awarii) i nie jest przełącznikiem w ustawieniach
-- Nowe instalacje mają trzy przekaźniki (\`wss://relay.mostro.network\`, \`wss://mostro-p2p.tech\`, \`wss://relay.shadowbip.com\`) i akceptują wszystkie waluty fiat
-- **Konfiguruj dostawców cen** obejmuje wieloźródłowy blok \`[price]\` (El Toque i ceny Nostr pozostają wyłączone, dopóki nie dodasz tokenu lub zaufanego węzła)
+- Pin obrazu \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
+- \`serbero_pubkey\` i \`maker_bond_payment_timeout_seconds\` uzupełniane przy upgrade i dostępne w akcjach Trading
 - Escrow Cashu nie jest spakowany; ta usługa nadal wymaga LND
 
-Pełne uwagi: https://github.com/MostroP2P/mostro/releases/tag/v0.18.7`,
-    fr_FR: `Mostro mis à jour vers 0.18.7.
+Pełne uwagi: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
+    fr_FR: `Mostro mis à jour vers 0.19.1 (inclut 0.19.0).
 
 **Fonctionnalités**
-- Plafonne les paiements en vol à l’échelle du nœud et par destination, et borne le timelock total d’une route de paiement — désormais dans **Configurer le nœud Lightning**
-- Les opérateurs peuvent annuler des ordres pre-trade via le RPC d’administration local
+- Assistant de litiges **Serbero** optionnel : définissez sa clé dans **Configurer les paramètres Mostro** ; Mostro l’enregistre comme solver en lecture seule et l’annonce dans l’événement d’info
+- Le protocole v1 (gift-wrap) est retiré ; le démon ne parle que nip44. Un \`transport = "gift-wrap"\` résiduel refuse de démarrer — ce paquet continue de figer nip44
+- Les makers peuvent annuler avant de payer la caution ; **Configurer la caution anti-abus** inclut le délai de paiement de la caution maker (900s par défaut)
+- Les litiges se ferment en annulation coopérative lors d’une annulation coopérative, et en released lorsque le vendeur libère
 
 **Corrections**
-- Les événements d’info annoncent correctement la fenêtre de hold ; les factures de paiement utilisateur sont plafonnées à 144 blocs ; plusieurs correctifs des compteurs de drain et de l’annulation admin des hold-invoices
+- Les hold-invoices que le vendeur vient de payer ne sont jamais annulées ; les gagnants de caution peuvent réclamer des parts sous le minimum ; lookups CancelLightning des cautions ; écritures de litige atomiques
+- Correctifs 0.19.0 : clés de trade, expiration caution taker, délai maker, tags amt/fa, fraîcheur des prix, publish/solver
 
 **StartOS**
-- Le transport est figé sur nip44 (protocole v2) ; gift-wrap n’est pas disponible
-- \`allow_node_change\` reste désactivé (reprise après sinistre uniquement) et n’est pas un interrupteur des réglages
-- Les nouvelles installations utilisent trois relais (\`wss://relay.mostro.network\`, \`wss://mostro-p2p.tech\`, \`wss://relay.shadowbip.com\`) et acceptent toutes les devises fiat
-- **Configurer les fournisseurs de prix** couvre le bloc multi-sources \`[price]\` (El Toque et les prix Nostr restent désactivés jusqu’à ce que vous ajoutiez un jeton ou un nœud de confiance)
+- Image \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
+- \`serbero_pubkey\` et \`maker_bond_payment_timeout_seconds\` sont renseignés à la mise à jour et exposés dans les actions Trading
 - L’escrow Cashu n’est pas empaqueté ; ce service exige toujours LND
 
-Notes complètes : https://github.com/MostroP2P/mostro/releases/tag/v0.18.7`,
+Notes complètes : https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
   },
   migrations: {
     up: async ({ effects }) => {
-      // Fill new 0.18.7 keys from .catch() defaults. Invalid leftover
-      // transport = gift-wrap is repaired to nip44.
+      // Fill new 0.19.x keys (maker_bond_payment_timeout_seconds,
+      // serbero_pubkey) from .catch() defaults. Invalid leftover
+      // transport = gift-wrap is repaired to nip44 so mostrod can start.
       await daemon_settings.merge(effects, {})
     },
     down: IMPOSSIBLE,
