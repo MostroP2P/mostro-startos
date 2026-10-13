@@ -176,6 +176,27 @@ const antiAbuseBondSchema = z.looseObject({
     .catch(defaultMakerBondPaymentTimeoutSeconds),
 })
 
+// Payment-account history / anti-triangulation. Opt-in; absent ≡ disabled.
+const payerHistorySchema = z.looseObject({
+  enabled: z.boolean().catch(false),
+  require_declaration: z.boolean().catch(false),
+  experienced_min_trades: natural(5),
+  experienced_min_days: natural(30),
+})
+
+const reputationIssuerSchema = z.looseObject({
+  name: z.string(),
+  keys: z.array(z.string()),
+})
+
+// Reputation import (preview in 0.19.3). Pin enabled false — upstream says
+// do not turn it on until a later release handles import-reputation.
+const reputationImportSchema = z.looseObject({
+  enabled: z.literal(false).catch(false),
+  max_lifetime_seconds: natural(604800),
+  issuers: z.array(reputationIssuerSchema).catch([]),
+})
+
 const shape = z.looseObject({
   lightning: lightningSchema.catch(() => lightningSchema.parse({})),
   nostr: nostrSchema.catch(() => nostrSchema.parse({})),
@@ -186,6 +207,10 @@ const shape = z.looseObject({
   price: priceSchema.catch(() => priceSchema.parse({})),
   anti_abuse_bond: antiAbuseBondSchema.catch(() =>
     antiAbuseBondSchema.parse({}),
+  ),
+  payer_history: payerHistorySchema.catch(() => payerHistorySchema.parse({})),
+  reputation_import: reputationImportSchema.catch(() =>
+    reputationImportSchema.parse({}),
   ),
 })
 

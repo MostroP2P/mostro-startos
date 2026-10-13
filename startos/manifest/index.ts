@@ -4,7 +4,7 @@ import { long, short } from './i18n'
 export const manifest = setupManifest({
   id: 'mostro',
   title: 'Mostro',
-  license: 'mit',
+  license: 'GPL-3.0',
   packageRepo: 'https://github.com/Start9-Community/mostro-startos',
   upstreamRepo: 'https://github.com/MostroP2P/mostro',
   marketingUrl: 'https://mostro.network/',
@@ -14,7 +14,7 @@ export const manifest = setupManifest({
   images: {
     mostro: {
       source: {
-        dockerTag: 'mostrop2p/mostro:v0.19.1',
+        dockerTag: 'mostrop2p/mostro:v0.19.3',
       },
       arch: ['x86_64', 'aarch64'],
       emulateMissing: false,

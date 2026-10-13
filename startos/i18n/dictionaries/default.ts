@@ -175,6 +175,16 @@ const dict = {
   'Invalid relay URL(s): ${urls}. Each relay must be a ws:// or wss:// URL.': 207,
   'At least one Nostr relay URL is required.': 208,
   'Invalid Nostr private key format. Please provide a valid nsec1... key.': 209,
+  'Payer History Enabled': 210,
+  'Track payment-account history across trades (anti-triangulation). Off by default.': 211,
+  'Require Declare-Payer': 212,
+  'When payer history is on, reject fiat-sent unless the buyer sent declare-payer first. Leave off unless your market needs sender-verifiable rails.': 213,
+  'Experienced Min Trades': 214,
+  'Successful undisputed trades a seller must already have with other buyers to count as experienced': 215,
+  'Experienced Min Days': 216,
+  'Days since that seller’s first such trade before it counts as experienced': 217,
+  'Configure Payer History': 218,
+  'Configure payment-account history and declare-payer requirements': 219,
 } as const
 
 /**
