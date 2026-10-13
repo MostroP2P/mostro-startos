@@ -73,7 +73,7 @@ One model, and it covers the entire configuration.
 | --------------- | ------ | ----------------------- | ------------------ |
 | `settings.toml` | TOML   | Yes — `FileHelper.toml` | Actions and `main` |
 
-Every section of Mostro's configuration is typed, with each field defaulted so an incomplete or hand-damaged file is repaired on read rather than rejected: the Lightning parameters, the Nostr identity and relays, the instance's public profile and trading limits, the database location, the admin RPC, the data-retention windows, the price-feed providers, and the anti-abuse bond.
+Every section of Mostro's configuration is typed, with each field defaulted so an incomplete or hand-damaged file is repaired on read rather than rejected: the Lightning parameters, the Nostr identity and relays, the instance's public profile and trading limits, the database location, the admin RPC, the data-retention windows, the price-feed providers, the anti-abuse bond, payer history, and reputation import (import stays pinned off).
 
 Five settings are **written by the package rather than the user**:
 
@@ -121,7 +121,7 @@ Once running, the instance publishes its profile to its relays and starts accept
 
 ## Actions
 
-Seven actions, in three groups.
+Eight actions, in three groups.
 
 ### Nostr Settings
 
@@ -182,6 +182,13 @@ Poll cadence, outlier and circuit-breaker limits, whether aggregated rates are p
 - **Nostr prices stay off** until at least one trusted 64-character hex pubkey is listed.
 - **CoinGecko keys and El Toque tokens are stored in `settings.toml`**, so they are in the backup.
 
+#### Payer History Settings
+
+Optional payment-account history across trades (anti-triangulation), whether declare-payer is required before fiat-sent, and the thresholds that mark a seller as experienced.
+
+- **Off by default.** Enabling it changes what buyers must declare before fiat-sent can succeed when require-declaration is also on.
+- **`[reputation_import]` is modelled and pinned off** — 0.19.3 advertises import capability without answering requests; there is no action to turn it on.
+
 ## Tasks
 
 Two, both raised at install and both blocking.
@@ -225,6 +232,7 @@ A restored instance comes back as the same Mostro to the network, with its histo
 8. **Mainnet only.** The macaroon path is pinned to Bitcoin mainnet.
 9. **Cashu escrow is not packaged.** Upstream can run without LND in Cashu mode; this package requires LND and leaves `[cashu]` unset.
 10. **Changing Lightning node identity with open escrow is blocked.** `allow_node_change` is pinned false.
+11. **Reputation import stays off.** The settings block exists for forward compatibility; enabling it is not supported in this release.
 
 ---
 
@@ -254,6 +262,7 @@ actions:
   - expiration-settings
   - anti-abuse-bond-settings
   - price-settings
+  - payer-history-settings
 tasks:
   - { action: nostr-key, severity: critical } # install only, raised from the actual config
   - { action: nostr-relays, severity: critical } # install only, raised from the actual config

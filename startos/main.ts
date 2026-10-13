@@ -39,6 +39,9 @@ export const main = sdk.setupMain(async ({ effects }) => {
     // Protocol v1 gift-wrap was removed in 0.19; pin nip44 so a leftover
     // gift-wrap value cannot refuse startup.
     mostro: { transport: 'nip44' },
+    // 0.19.3 advertises import capability without answering requests. Keep
+    // off until upstream ships the import-reputation handler.
+    reputation_import: { enabled: false },
     // Keep the admin RPC fixed on at localhost — it's Mostro's local-only admin
     // channel, never network-exposed.
     rpc: { enabled: true, listen_address: '127.0.0.1', port: 50051 },
