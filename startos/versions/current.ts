@@ -2,104 +2,109 @@ import { IMPOSSIBLE, VersionInfo } from '@start9labs/start-sdk'
 import { daemon_settings } from '../fileModels/settings'
 
 export const current = VersionInfo.of({
-  version: '0.19.1:0',
+  version: '0.19.3:0',
   releaseNotes: {
-    en_US: `Updated Mostro to 0.19.1 (includes 0.19.0).
+    en_US: `Updated Mostro to 0.19.3 (includes 0.19.2).
 
 **Features**
-- Optional **Serbero** dispute assistant: set its pubkey under **Configure Mostro Settings**; Mostro registers it as a read-only solver and announces it in the info event
-- Protocol v1 (gift-wrap) is removed; the daemon speaks nip44 only. A leftover \`transport = "gift-wrap"\` refuses to start — this package keeps pinning nip44
-- Makers can cancel before paying the bond; **Configure Anti-Abuse Bond** includes the maker-bond payment timeout (default 900s)
-- Disputes close as cooperatively-canceled on a cooperative cancel, and as released when the seller releases
+- **Configure Payer History** — optional payment-account history and declare-payer gating (off by default)
+- Reputation import settings are modelled and kept disabled (upstream preview; do not enable until a later release handles import requests)
+- Maker-chosen Cashu mint and Cashu info-event publish upstream — Cashu escrow is still not packaged here
+- user-info answers with this node's own reputation
+- Dev fees go only on LND mainnet, to \`dev@pay.mostro.foundation\` (0.19.2)
 
 **Fixes**
-- Hold invoices the seller just paid are never canceled; bond winners can claim shares below the minimum; bond CancelLightning lookups work; dispute writes are atomic
-- Trade-key, taker-bond expiry, maker-bond deadline, amt/fa tag, price-staleness, and publish/solver notification fixes from 0.19.0
+- LNURL fetches ignore system proxies
 
 **StartOS**
-- Image pin \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
-- \`serbero_pubkey\` and \`maker_bond_payment_timeout_seconds\` are filled on upgrade and exposed in Trading actions
+- Image pin \`mostrop2p/mostro:v0.19.3\` (amd64 + arm64)
+- Package license matches upstream GPL-3.0
+- \`[payer_history]\` and \`[reputation_import]\` are filled on upgrade; reputation import stays pinned off
 - Cashu escrow is not packaged; this service still requires LND
 
-Full notes: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
-    es_ES: `Mostro actualizado a 0.19.1 (incluye 0.19.0).
+Full notes: https://github.com/MostroP2P/mostro/releases/tag/v0.19.3`,
+    es_ES: `Mostro actualizado a 0.19.3 (incluye 0.19.2).
 
 **Novedades**
-- Asistente de disputas **Serbero** opcional: configura su clave en **Configurar ajustes de Mostro**; Mostro lo registra como solver de solo lectura y lo anuncia en el evento de información
-- El protocolo v1 (gift-wrap) se elimina; el daemon solo habla nip44. Un \`transport = "gift-wrap"\` residual impide el arranque — este paquete sigue fijando nip44
-- Los makers pueden cancelar antes de pagar la fianza; **Configurar fianza antiabuso** incluye el tiempo de pago de la fianza del maker (900s por defecto)
-- Las disputas se cierran como cancelación cooperativa en una cancelación cooperativa, y como liberadas cuando el vendedor libera
+- **Configurar historial de pagador** — historial opcional de cuentas de pago y exigencia de declare-payer (apagado por defecto)
+- Los ajustes de importación de reputación están modelados y se mantienen desactivados (vista previa de upstream; no activar hasta una versión posterior)
+- Mint Cashu elegida por el maker y publicación de info en modo Cashu en upstream — el escrow Cashu sigue sin empaquetarse aquí
+- user-info responde con la reputación propia del nodo
+- Las comisiones de desarrollo solo en LND mainnet, a \`dev@pay.mostro.foundation\` (0.19.2)
 
 **Correcciones**
-- No se cancelan hold-invoices que el vendedor acaba de pagar; los ganadores de fianza pueden reclamar cuotas por debajo del mínimo; lookups CancelLightning de fianza; escrituras de disputa atómicas
-- Correcciones de 0.19.0 sobre claves de trade, expiración de fianza del taker, plazo del maker, etiquetas amt/fa, caducidad de precios y notificaciones
+- Las consultas LNURL ignoran los proxies del sistema
 
 **StartOS**
-- Imagen \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
-- \`serbero_pubkey\` y \`maker_bond_payment_timeout_seconds\` se rellenan al actualizar y están en las acciones de Trading
+- Imagen \`mostrop2p/mostro:v0.19.3\` (amd64 + arm64)
+- La licencia del paquete coincide con GPL-3.0 de upstream
+- \`[payer_history]\` y \`[reputation_import]\` se rellenan al actualizar; la importación de reputación permanece fijada en off
 - El escrow Cashu no está empaquetado; este servicio sigue requiriendo LND
 
-Notas completas: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
-    de_DE: `Mostro auf 0.19.1 aktualisiert (inkl. 0.19.0).
+Notas completas: https://github.com/MostroP2P/mostro/releases/tag/v0.19.3`,
+    de_DE: `Mostro auf 0.19.3 aktualisiert (inkl. 0.19.2).
 
 **Funktionen**
-- Optionaler **Serbero**-Streitassistent: Pubkey unter **Mostro-Einstellungen konfigurieren**; Mostro registriert ihn als schreibgeschützten Solver und kündigt ihn im Info-Event an
-- Protokoll v1 (gift-wrap) ist entfernt; der Daemon spricht nur nip44. Ein übrig gebliebenes \`transport = "gift-wrap"\` verhindert den Start — dieses Paket pinnt weiterhin nip44
-- Maker können vor der Bond-Zahlung stornieren; **Anti-Abuse-Bond konfigurieren** enthält das Maker-Bond-Zahlungs-Timeout (Standard 900s)
-- Disputes schließen als kooperativ storniert bei kooperativer Stornierung und als freigegeben, wenn der Verkäufer freigibt
+- **Zahlerhistorie konfigurieren** — optionale Zahlungskonto-Historie und declare-payer-Zwang (standardmäßig aus)
+- Reputation-Import-Einstellungen sind modelliert und bleiben aus (Upstream-Vorschau; nicht aktivieren, bis eine spätere Version Import-Anfragen beantwortet)
+- Maker-gewählte Cashu-Mint und Cashu-Info-Event upstream — Cashu-Escrow bleibt hier unpaketiert
+- user-info antwortet mit der eigenen Reputation des Knotens
+- Dev-Gebühren nur auf LND-Mainnet an \`dev@pay.mostro.foundation\` (0.19.2)
 
 **Korrekturen**
-- Hold-Invoices, die der Verkäufer gerade bezahlt hat, werden nicht storniert; Bond-Gewinner können Anteile unter dem Minimum beanspruchen; Bond-CancelLightning-Lookups; atomare Dispute-Schreibvorgänge
-- Trade-Key-, Taker-Bond-, Maker-Frist-, amt/fa-, Preis-Staleness- und Publish/Solver-Korrekturen aus 0.19.0
+- LNURL-Abrufe ignorieren System-Proxys
 
 **StartOS**
-- Image-Pin \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
-- \`serbero_pubkey\` und \`maker_bond_payment_timeout_seconds\` werden beim Upgrade gesetzt und in Trading-Aktionen angeboten
+- Image-Pin \`mostrop2p/mostro:v0.19.3\` (amd64 + arm64)
+- Paketlizenz entspricht Upstream GPL-3.0
+- \`[payer_history]\` und \`[reputation_import]\` werden beim Upgrade gesetzt; Reputation-Import bleibt aus
 - Cashu-Escrow ist nicht paketiert; dieser Dienst benötigt weiterhin LND
 
-Vollständige Hinweise: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
-    pl_PL: `Zaktualizowano Mostro do 0.19.1 (zawiera 0.19.0).
+Vollständige Hinweise: https://github.com/MostroP2P/mostro/releases/tag/v0.19.3`,
+    pl_PL: `Zaktualizowano Mostro do 0.19.3 (zawiera 0.19.2).
 
 **Funkcje**
-- Opcjonalny asystent sporów **Serbero**: ustaw klucz w **Konfiguruj ustawienia Mostro**; Mostro rejestruje go jako solver tylko do odczytu i ogłasza w zdarzeniu info
-- Protokół v1 (gift-wrap) został usunięty; demon mówi tylko nip44. Pozostałe \`transport = "gift-wrap"\` blokuje start — ten pakiet nadal pinuje nip44
-- Makerzy mogą anulować przed opłaceniem kaucji; **Konfiguruj kaucję antynadużyciową** zawiera timeout płatności kaucji maker (domyślnie 900s)
-- Spory zamykane są jako kooperacyjnie anulowane przy kooperacyjnym anulowaniu oraz jako released, gdy sprzedawca zwalnia
+- **Konfiguruj historię płatnika** — opcjonalna historia kont płatności i wymóg declare-payer (domyślnie wyłączone)
+- Ustawienia importu reputacji są modelowane i pozostają wyłączone (podgląd upstream; nie włączać, dopóki późniejsza wersja nie obsłuży żądań importu)
+- Mint Cashu wybierany przez makera i publikacja info w trybie Cashu w upstream — escrow Cashu nadal nie jest tu pakowany
+- user-info odpowiada własną reputacją węzła
+- Opłaty deweloperskie tylko na LND mainnet, na \`dev@pay.mostro.foundation\` (0.19.2)
 
 **Poprawki**
-- Hold-invoice właśnie opłacone przez sprzedawcę nie są anulowane; zwycięzcy kaucji mogą wypłacać udziały poniżej minimum; lookupi CancelLightning kaucji; atomowe zapisy sporów
-- Poprawki 0.19.0: klucze trade, wygaśnięcie kaucji takera, termin makera, tagi amt/fa, staleness cen, publish/solver
+- Pobieranie LNURL ignoruje systemowe proxy
 
 **StartOS**
-- Pin obrazu \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
-- \`serbero_pubkey\` i \`maker_bond_payment_timeout_seconds\` uzupełniane przy upgrade i dostępne w akcjach Trading
+- Pin obrazu \`mostrop2p/mostro:v0.19.3\` (amd64 + arm64)
+- Licencja pakietu zgodna z GPL-3.0 upstream
+- \`[payer_history]\` i \`[reputation_import]\` uzupełniane przy upgrade; import reputacji pozostaje wyłączony
 - Escrow Cashu nie jest spakowany; ta usługa nadal wymaga LND
 
-Pełne uwagi: https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
-    fr_FR: `Mostro mis à jour vers 0.19.1 (inclut 0.19.0).
+Pełne uwagi: https://github.com/MostroP2P/mostro/releases/tag/v0.19.3`,
+    fr_FR: `Mostro mis à jour vers 0.19.3 (inclut 0.19.2).
 
 **Fonctionnalités**
-- Assistant de litiges **Serbero** optionnel : définissez sa clé dans **Configurer les paramètres Mostro** ; Mostro l’enregistre comme solver en lecture seule et l’annonce dans l’événement d’info
-- Le protocole v1 (gift-wrap) est retiré ; le démon ne parle que nip44. Un \`transport = "gift-wrap"\` résiduel refuse de démarrer — ce paquet continue de figer nip44
-- Les makers peuvent annuler avant de payer la caution ; **Configurer la caution anti-abus** inclut le délai de paiement de la caution maker (900s par défaut)
-- Les litiges se ferment en annulation coopérative lors d’une annulation coopérative, et en released lorsque le vendeur libère
+- **Configurer l’historique du payeur** — historique optionnel des comptes de paiement et exigence declare-payer (désactivé par défaut)
+- Les réglages d’import de réputation sont modélisés et restent désactivés (aperçu upstream ; ne pas activer avant une version ultérieure)
+- Mint Cashu choisi par le maker et publication d’info en mode Cashu en amont — l’escrow Cashu n’est toujours pas empaqueté ici
+- user-info répond avec la réputation propre du nœud
+- Frais de développement uniquement sur LND mainnet, vers \`dev@pay.mostro.foundation\` (0.19.2)
 
 **Corrections**
-- Les hold-invoices que le vendeur vient de payer ne sont jamais annulées ; les gagnants de caution peuvent réclamer des parts sous le minimum ; lookups CancelLightning des cautions ; écritures de litige atomiques
-- Correctifs 0.19.0 : clés de trade, expiration caution taker, délai maker, tags amt/fa, fraîcheur des prix, publish/solver
+- Les requêtes LNURL ignorent les proxies système
 
 **StartOS**
-- Image \`mostrop2p/mostro:v0.19.1\` (amd64 + arm64)
-- \`serbero_pubkey\` et \`maker_bond_payment_timeout_seconds\` sont renseignés à la mise à jour et exposés dans les actions Trading
+- Image \`mostrop2p/mostro:v0.19.3\` (amd64 + arm64)
+- La licence du paquet suit le GPL-3.0 amont
+- \`[payer_history]\` et \`[reputation_import]\` sont renseignés à la mise à jour ; l’import de réputation reste figé désactivé
 - L’escrow Cashu n’est pas empaqueté ; ce service exige toujours LND
 
-Notes complètes : https://github.com/MostroP2P/mostro/releases/tag/v0.19.1`,
+Notes complètes : https://github.com/MostroP2P/mostro/releases/tag/v0.19.3`,
   },
   migrations: {
     up: async ({ effects }) => {
-      // Fill new 0.19.x keys (maker_bond_payment_timeout_seconds,
-      // serbero_pubkey) from .catch() defaults. Invalid leftover
-      // transport = gift-wrap is repaired to nip44 so mostrod can start.
+      // Fill new 0.19.3 keys (payer_history, reputation_import) from .catch()
+      // defaults. Existing values stay; reputation_import.enabled is repaired
+      // to false if somehow set.
       await daemon_settings.merge(effects, {})
     },
     down: IMPOSSIBLE,
