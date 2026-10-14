@@ -5,6 +5,7 @@ import { nostrRelays } from './nostr-settings/nostrRelays'
 import { antiAbuseBondSettings } from './trading/antiAbuseBondSettings'
 import { expirationSettings } from './trading/expirationSettings'
 import { mostroSettings } from './trading/mostroSettings'
+import { payerHistorySettings } from './trading/payerHistorySettings'
 import { priceSettings } from './trading/priceSettings'
 
 export const actions = sdk.Actions.of()
@@ -15,3 +16,4 @@ export const actions = sdk.Actions.of()
   .addAction(expirationSettings)
   .addAction(antiAbuseBondSettings)
   .addAction(priceSettings)
+  .addAction(payerHistorySettings)
