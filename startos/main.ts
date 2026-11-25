@@ -39,8 +39,7 @@ export const main = sdk.setupMain(async ({ effects }) => {
     // Protocol v1 gift-wrap was removed in 0.19; pin nip44 so a leftover
     // gift-wrap value cannot refuse startup.
     mostro: { transport: 'nip44' },
-    // 0.19.3 advertises import capability without answering requests. Keep
-    // off until upstream ships the import-reputation handler.
+    // This package does not support reputation import; keep it off.
     reputation_import: { enabled: false },
     // Keep the admin RPC fixed on at localhost — it's Mostro's local-only admin
     // channel, never network-exposed.
@@ -60,8 +59,8 @@ export const main = sdk.setupMain(async ({ effects }) => {
     })
     .mountDependency({
       dependencyId: 'lnd',
-      volumeId: 'main',
-      subpath: null,
+      volumeId: 'public',
+      subpath: 'admin',
       mountpoint: lndMount,
       readonly: true,
       // LND writes its creds as root (uid 0); remap to mostrouser (1000) so the

@@ -53,10 +53,10 @@ One oneshot runs first, giving the data directory to the daemon's user.
 
 One volume, plus a read-only view of LND's.
 
-| Volume            | Mount Point | Purpose                              |
-| ----------------- | ----------- | ------------------------------------ |
-| `main`            | `/mostro`   | The settings and the trade database  |
-| LND's `main` (ro) | `/mnt/lnd`  | LND's certificate and admin macaroon |
+| Volume                        | Mount Point | Purpose                                            |
+| ----------------------------- | ----------- | -------------------------------------------------- |
+| `main`                        | `/mostro`   | The settings and the trade database                |
+| LND's `public` (ro), `admin/` | `/mnt/lnd`  | LND's certificate and admin macaroon, nothing else |
 
 | Path            | Written by | Holds                                      |
 | --------------- | ---------- | ------------------------------------------ |
@@ -91,9 +91,9 @@ The settings file is read reactively, so any action that changes it restarts the
 
 One, and it is required.
 
-| Dependency | Required | Health checks required | Mounted                         | Why                    |
-| ---------- | -------- | ---------------------- | ------------------------------- | ---------------------- |
-| LND        | Yes      | `sync-progress`        | `main`, read-only at `/mnt/lnd` | The escrow and payouts |
+| Dependency | Required | Health checks required | Mounted                                         | Why                    |
+| ---------- | -------- | ---------------------- | ----------------------------------------------- | ---------------------- |
+| LND        | Yes      | `sync-progress`        | `public` tier `admin/`, read-only at `/mnt/lnd` | The escrow and payouts |
 
 **A synced LND is required, not merely a running one.** Mostro holds funds in hold invoices and settles them; an unsynced node cannot do that safely, so the dependency asks for the sync check specifically.
 
@@ -155,10 +155,10 @@ The invoice parameters: expiry windows, the hold-invoice CLTV delta, the payment
 
 #### Mostro Settings
 
-The instance's public profile — name, description, picture, website — plus its economics: the fee it charges, the routing-fee ceiling, order size limits, order and rating publication intervals, proof-of-work difficulty, the accepted fiat currencies, and the developer fee percentage.
+The instance's public profile — name, description, picture, website — plus its economics: the fee it charges, the routing-fee ceiling, order size limits, order and rating publication intervals, proof-of-work difficulty, the accepted currencies, and the developer fee percentage.
 
 - **`transport` is pinned to nip44** (protocol v2) and is not on this form. Protocol v1 gift-wrap was removed upstream.
-- **Fiat currencies default to empty** (accept all). A comma-separated list still restricts which codes this instance will take.
+- **Accepted currencies default to empty** (accept all). A comma-separated list still restricts which codes this instance will take, and must also list every pegged code quoted under Price Provider Settings, or orders in it are refused.
 - **`serbero_pubkey` is optional.** If you run a [Serbero](https://github.com/MostroP2P/serbero) dispute assistant, put its npub or hex here; leave empty otherwise. Mostro registers it as a read-only solver at boot and announces it in the info event. A value that is not an npub or 64-character hex key is refused, since Mostro would not start with it.
 - **The developer fee percentage stays between 0.10 and 1**, the range Mostro accepts at startup.
 
@@ -168,16 +168,21 @@ How long orders, ratings, disputes, fee audit records, and direct messages are r
 
 #### Anti-Abuse Bond Settings
 
-The optional bond takers or makers must post, its size, whether it is slashed on a timeout, how the payout is handled, and how long a maker has to pay the maker bond before the unpublished order expires.
+The optional bond takers or makers must post, its size, whether it is slashed on a timeout, how the payout is handled, how long a maker has to pay the maker bond before the unpublished order expires, and the bond hold invoices' CLTV.
 
 - **Off by default.** Turning it on changes what counterparties must do to trade with you.
 - **Maker bond payment timeout** defaults to 900 seconds and applies when `apply_to` is `make` or `both`.
+- **`bond_cltv_delta` is optional.** Unset, Mostro uses `hold_invoice_cltv_delta + 288`, capped at 864. With bonds on, Mostro refuses to start unless the effective value is above `hold_invoice_cltv_delta + 144` and at most 864, so with the default a `hold_invoice_cltv_delta` of 720 or more has no valid bond CLTV. This form and Lightning Node Settings refuse a combination that would stop the service, and the 0.20.3 upgrade turns bonds off if the saved settings already break it.
 
 #### Price Provider Settings
 
-Poll cadence, outlier and circuit-breaker limits, whether aggregated rates are published to Nostr, and each HTTP/Nostr source (Yadio, CoinGecko, currency-api, Blockchain.info, El Toque, trusted Mostro nodes).
+Poll cadence, outlier, two-source divergence and circuit-breaker limits, whether aggregated rates are published to Nostr, each HTTP/Nostr source (Yadio, CoinGecko, currency-api, Blockchain.info, El Toque, trusted Mostro nodes), and the pegged currencies.
 
 - **The `[price]` block is always present.** The package writes it from defaults on every start, so the legacy single-source synthesis never runs; this form only changes its values.
+- **A currency with exactly two sources that disagree is refused** by Mostro (since 0.20.3) until they agree within `pair_divergence_pct` (unset: `outlier_threshold_pct`). Yadio and currency-api ship with upstream's `except` lists of codes they misquote, so minor fiats keep enough agreeing sources. The 0.20.3 upgrade replaces a currency-api list still at the old `CUP`, `MLC` default.
+- **Custom provider scopes are preserved.** Yadio and currency-api receive default exclusions only when neither `only` nor `except` is configured. A custom `only` list leaves that provider's exclusions empty in the form; keep them empty to preserve it, or remove `only` from `settings.toml` before configuring exclusions. El Toque gets its default `only` list when neither is configured; a custom `except` there is kept until currencies are listed in the form.
+- **Price limits must be positive.** The form rejects a zero Outlier Threshold, and an invalid saved outlier threshold, poll interval or staleness limit is repaired to its default (5%, 300 s, 1800 s).
+- **Pegged currencies stay off.** When on, the stablecoins (USDT, USDC, DOC → USD) and bitcoin on other networks (BTC, LBTC, RBTC → sats) selected are quoted 1:1 with no network call. Saved `only` and `except` scopes are case-insensitive and populate the selected codes; saving the form expresses that selection with `only` and removes `except`. Selecting every code omits both scope keys; selecting none quotes none.
 - **El Toque stays off** until you have a token and have confirmed the API; enabling it without a token is rejected.
 - **Nostr prices stay off** until at least one trusted 64-character hex pubkey is listed.
 - **CoinGecko keys and El Toque tokens are stored in `settings.toml`**, so they are in the backup.
@@ -187,7 +192,7 @@ Poll cadence, outlier and circuit-breaker limits, whether aggregated rates are p
 Optional payment-account history across trades (anti-triangulation), whether declare-payer is required before fiat-sent, and the thresholds that mark a seller as experienced.
 
 - **Off by default.** Enabling it changes what buyers must declare before fiat-sent can succeed when require-declaration is also on.
-- **`[reputation_import]` is modelled and pinned off** — 0.19.3 advertises import capability without answering requests; there is no action to turn it on.
+- **`[reputation_import]` is modelled and pinned off**; there is no action to turn it on, and `[reputation_export]` is not written.
 
 ## Tasks
 
@@ -229,10 +234,10 @@ A restored instance comes back as the same Mostro to the network, with its histo
 5. **The backup holds the identity key.**
 6. **Price feeds are external HTTP APIs** (and optionally trusted Mostro nodes over Nostr) and are contacted on a schedule, so the instance's traffic is not confined to LND.
 7. **The admin RPC is unauthenticated** and is pinned to loopback for exactly that reason; it cannot be exported.
-8. **Mainnet only.** The macaroon path is pinned to Bitcoin mainnet.
+8. **Mainnet only.** LND's `admin/` tier carries the mainnet admin macaroon.
 9. **Cashu escrow is not packaged.** Upstream can run without LND in Cashu mode; this package requires LND and leaves `[cashu]` unset.
 10. **Changing Lightning node identity with open escrow is blocked.** `allow_node_change` is pinned false.
-11. **Reputation import stays off.** The settings block exists for forward compatibility; enabling it is not supported in this release.
+11. **Reputation import and export stay off.** The import block is pinned off and the export block is never written.
 
 ---
 
@@ -247,7 +252,7 @@ architectures:
 subcontainers:
   - mostro-sub
 volumes:
-  main: /mostro # settings.toml + mostro.db; LND's main is read-only at /mnt/lnd (idmapped 0→1000)
+  main: /mostro # settings.toml + mostro.db; LND's public admin/ tier (admin.macaroon, tls.cert) is read-only at /mnt/lnd (idmapped 0→1000)
 file_models:
   - settings.toml # the entire configuration, including the nsec
 startos_managed_env_vars: [] # everything is settings.toml
